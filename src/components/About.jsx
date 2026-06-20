@@ -37,18 +37,20 @@ const About = () => {
             className="md:col-span-7"
           >
             <p className="font-body-lg text-body-lg text-secondary leading-relaxed mb-lg">
-              Con más de quince años de experiencia en la industria
-              de la alta peluquería, Maria ha cultivado una filosofía
-              centrada en la individualidad. Formada en las capitales
-              de la moda y perfeccionando su técnica en Torreón, cada
-              servicio es una mezcla de precisión técnica y visión artística.
+              Maria Guadalupe García Rentería es estilista profesional 
+              con 22 años de experiencia, nacida y formada en Torreón, Coahuila. 
+              Desde joven descubrió su vocación en una escuela de estilismo, 
+              donde dominó corte femenino, peinado, colorimetría y técnicas 
+              de ondulación. Con el tiempo fue ampliando su oficio hasta 
+              abarcar uñas, pedicura, tratamientos capilares, laminado de 
+              cejas, extensión de pestañas pelo a pelo y maquillaje profesional.
             </p>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Nuestro salón no es solo un lugar de transformación, sino
-              un refugio. Creemos que el cuidado personal es una forma
-              de meditación, y hemos diseñado cada rincón de Maria's
-              para reflejar esa tranquilidad boutique que nuestros
-              clientes merecen.
+            <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Su salón es un espacio íntimo y personal — atiende 
+              exclusivamente con cita previa y dedica su atención completa 
+              a una sola clienta a la vez. No es un salón de producción 
+              masiva: es un refugio donde cada visita recibe el tiempo, 
+              la calma y el cuidado que merece.
             </p>
           </motion.div>
 

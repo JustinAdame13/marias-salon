@@ -11,7 +11,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const SALON_POSITION = [25.5428, -103.4068]
+const SALON_POSITION = [25.5515, -103.4115]
 
 const Location = () => {
   const left = useScrollReveal()
@@ -40,21 +40,21 @@ const Location = () => {
             <div className="flex items-start gap-md mb-base">
               <span className="text-primary text-xl mt-1">📍</span>
               <address className="not-italic font-body-md text-body-md text-on-surface">
-                Av. Morelos 1234, Local 5<br />
-                Sector Centro, Torreón, Coah. CP 27000
+                Cesáreo Castro 662, Lucio Blanco<br />
+                27230 Torreón, Coahuila
               </address>
             </div>
 
             <div className="flex items-start gap-md mb-lg">
               <span className="text-primary text-xl mt-1">🕐</span>
               <p className="font-body-md text-body-md text-on-surface">
-                Lunes a Viernes: 10:00 AM – 8:00 PM<br />
-                Sábados: 9:00 AM – 6:00 PM
+                Lunes a Domingo: 6:00 AM – 12:00 PM<br />
+                <span className="font-label-sm text-label-sm text-primary">Solo con cita previa</span>
               </p>
             </div>
 
             <a
-              href="https://maps.google.com/?q=Torreon,Coahuila"
+              href="https://maps.app.goo.gl/CDqp75T3Qs8n8Wco7"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block border border-primary text-primary px-lg py-sm rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all"
@@ -83,8 +83,8 @@ const Location = () => {
               <Marker position={SALON_POSITION}>
                 <Popup>
                   <strong>Maria's Beauty Salon</strong><br />
-                  Av. Morelos 1234, Local 5<br />
-                  Torreón, Coahuila
+                  Cesáreo Castro 662, Lucio Blanco<br />
+                  27230 Torreón, Coahuila
                 </Popup>
               </Marker>
             </MapContainer>
