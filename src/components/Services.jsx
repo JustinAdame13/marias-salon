@@ -1,5 +1,7 @@
-// Datos separados de la presentación — si mañana cambias un precio,
-// solo tocas este array, no el HTML/JSX
+import { motion } from 'framer-motion'
+import useScrollReveal from '../hooks/useScrollReveal'
+import { fadeUp, staggerContainer, staggerItem } from '../animations/variants'
+
 const serviceCategories = [
   {
     id: 'hair',
@@ -30,58 +32,71 @@ const serviceCategories = [
   },
 ]
 
-// Componente pequeño reutilizable para cada fila de servicio
-const ServiceRow = ({ name, price }) => {
-  return (
-    <div className="flex justify-between items-baseline group cursor-default">
-      <span className="font-body-lg text-body-lg group-hover:text-primary transition-colors">
-        {name}
-      </span>
-      <div className="flex-grow mx-base border-b border-dotted border-outline-variant/30" />
-      <span className="font-label-md text-label-md text-secondary">
-        {price}
-      </span>
-    </div>
-  )
-}
+const ServiceRow = ({ name, price }) => (
+  // motion.div con staggerItem — el padre controla el delay entre hijos
+  <motion.div
+    variants={staggerItem}
+    className="flex justify-between items-baseline group cursor-default"
+  >
+    <span className="font-body-lg text-body-lg group-hover:text-primary transition-colors">
+      {name}
+    </span>
+    <div className="flex-grow mx-base border-b border-dotted border-outline-variant/30" />
+    <span className="font-label-md text-label-md text-secondary">
+      {price}
+    </span>
+  </motion.div>
+)
 
-// Componente para cada categoría de servicios
 const ServiceCategory = ({ title, services }) => {
+  const { ref, controls } = useScrollReveal()
+
   return (
-    <div className="space-y-sm">
-      <h3 className="font-headline-md text-headline-md border-b border-primary/10 pb-base text-primary">
+    <motion.div
+      ref={ref}
+      variants={staggerContainer}
+      initial="hidden"
+      animate={controls}
+      className="space-y-sm"
+    >
+      <motion.h3
+        variants={staggerItem}
+        className="font-headline-md text-headline-md border-b border-primary/10 pb-base text-primary"
+      >
         {title}
-      </h3>
+      </motion.h3>
       <div className="space-y-sm">
         {services.map((service) => (
-          <ServiceRow
-            key={service.name}
-            name={service.name}
-            price={service.price}
-          />
+          <ServiceRow key={service.name} name={service.name} price={service.price} />
         ))}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
-// Componente principal de la sección
 const Services = () => {
+  const header = useScrollReveal()
+  const note = useScrollReveal()
+
   return (
     <section id="services" className="py-xl">
       <div className="max-w-container-max mx-auto px-md">
 
-        {/* Encabezado */}
-        <div className="text-center mb-xl">
+        <motion.div
+          ref={header.ref}
+          variants={fadeUp}
+          initial="hidden"
+          animate={header.controls}
+          className="text-center mb-xl"
+        >
           <span className="font-label-md text-label-md text-primary tracking-[0.2em] uppercase block mb-sm">
             Menú de Especialidades
           </span>
           <h2 className="font-display-lg text-5xl md:text-6xl text-on-background">
             Servicios de Autor
           </h2>
-        </div>
+        </motion.div>
 
-        {/* Grid de categorías */}
         <div className="grid md:grid-cols-2 gap-x-xl gap-y-lg">
           {serviceCategories.map((category) => (
             <ServiceCategory
@@ -92,16 +107,21 @@ const Services = () => {
           ))}
         </div>
 
-        {/* Nota signature */}
-        <div className="mt-lg p-lg bg-surface-container-low rounded-sm border border-primary/5 w-full max-w-2xl mx-auto text-center">
-  <h4 className="font-label-md text-label-md text-primary uppercase tracking-wider mb-sm">
-    Servicios Signature
-  </h4>
-  <p className="font-body-md text-body-md text-on-surface-variant italic">
-    "Nuestros servicios incluyen una consulta personalizada 
-    y aromaterapia de cortesía para elevar su experiencia."
-  </p>
-</div>
+        <motion.div
+          ref={note.ref}
+          variants={fadeUp}
+          initial="hidden"
+          animate={note.controls}
+          className="mt-lg p-lg bg-surface-container-low rounded-sm border border-primary/5 w-full max-w-2xl mx-auto text-center"
+        >
+          <h4 className="font-label-md text-label-md text-primary uppercase tracking-wider mb-sm">
+            Servicios Signature
+          </h4>
+          <p className="font-body-md text-body-md text-on-surface-variant italic">
+            "Nuestros servicios incluyen una consulta personalizada
+            y aromaterapia de cortesía para elevar su experiencia."
+          </p>
+        </motion.div>
 
       </div>
     </section>
