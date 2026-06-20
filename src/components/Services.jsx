@@ -93,15 +93,15 @@ const Services = () => {
         </div>
 
         {/* Nota signature */}
-        <div className="mt-lg p-lg bg-surface-container-low rounded-sm border border-primary/5 max-w-xl mx-auto text-center">
-          <h4 className="font-label-md text-label-md text-primary uppercase tracking-wider mb-sm">
-            Servicios Signature
-          </h4>
-          <p className="font-body-md text-body-md text-on-surface-variant italic">
-            "Nuestros servicios incluyen una consulta personalizada 
-            y aromaterapia de cortesía para elevar su experiencia."
-          </p>
-        </div>
+        <div className="mt-lg p-lg bg-surface-container-low rounded-sm border border-primary/5 w-full max-w-2xl mx-auto text-center">
+  <h4 className="font-label-md text-label-md text-primary uppercase tracking-wider mb-sm">
+    Servicios Signature
+  </h4>
+  <p className="font-body-md text-body-md text-on-surface-variant italic">
+    "Nuestros servicios incluyen una consulta personalizada 
+    y aromaterapia de cortesía para elevar su experiencia."
+  </p>
+</div>
 
       </div>
     </section>

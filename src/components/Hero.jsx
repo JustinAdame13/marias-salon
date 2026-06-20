@@ -1,18 +1,18 @@
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden pt-xl">
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-4">
       <div className="max-w-container-max mx-auto px-md grid md:grid-cols-2 gap-xl items-center">
         
         {/* Columna izquierda — texto */}
         <div>
-          <h1 className="font-display-lg text-6xl md:text-8xl text-primary leading-none mb-md">
+          <h1 className="font-['Bodoni_Moda'] text-6xl md:text-8xl text-primary leading-none mb-md">
             Bienvenidos a{' '}
             <span className="italic font-light">
               Maria's Beauty Salon
             </span>
           </h1>
 
-          <p className="font-body-lg text-body-lg text-secondary max-w-md mb-lg">
+          <p className="font-body-md text-body-lg text-secondary max-w-prose mb-lg">
             Un espacio boutique donde la serenidad se encuentra 
             con la excelencia técnica. Redescubre tu estilo en 
             un entorno de calma y profesionalismo.
