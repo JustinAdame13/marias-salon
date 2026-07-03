@@ -68,26 +68,27 @@ const Location = () => {
             variants={fadeRight}
             initial="hidden"
             animate={right.controls}
-            className="h-96 md:h-[450px] w-full rounded-sm overflow-hidden shadow-inner z-0"
           >
-            <MapContainer
-              center={SALON_POSITION}
-              zoom={15}
-              style={{ height: '100%', width: '100%' }}
-              scrollWheelZoom={false}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={SALON_POSITION}>
-                <Popup>
-                  <strong>Maria's Beauty Salon</strong><br />
-                  Cesáreo Castro 662, Lucio Blanco<br />
-                  27230 Torreón, Coahuila
-                </Popup>
-              </Marker>
-            </MapContainer>
+            <div className="h-96 md:h-[450px] w-full rounded-sm overflow-hidden shadow-inner z-0">
+              <MapContainer
+                center={SALON_POSITION}
+                zoom={15}
+                style={{ height: '100%', width: '100%' }}
+                scrollWheelZoom={false}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={SALON_POSITION}>
+                  <Popup>
+                    <strong>Maria's Beauty Salon</strong><br />
+                    Cesáreo Castro 662, Lucio Blanco<br />
+                    27230 Torreón, Coahuila
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            </div>
           </motion.div>
 
         </div>
