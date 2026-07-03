@@ -1,4 +1,6 @@
+import { useWhatsApp } from '../context/WhatsAppContext'
 const Navbar = () => {
+  const { openWhatsApp } = useWhatsApp()
   return (
     <header className="w-full top-0 sticky z-50 bg-surface/80 backdrop-blur-md">
       <nav className="max-w-container-max mx-auto px-md py-sm flex justify-between items-center">
@@ -22,7 +24,7 @@ const Navbar = () => {
         </div>
 
         {/* Botón CTA */}
-        <button className="bg-primary text-on-primary px-md py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity active:opacity-70">
+        <button onClick={openWhatsApp} className="bg-primary text-on-primary px-md py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity active:opacity-70">
           Reservar Cita
         </button>
 

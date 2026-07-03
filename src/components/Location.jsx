@@ -11,7 +11,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const SALON_POSITION = [25.5515, -103.4115]
+const SALON_POSITION = [25.534904618690064, -103.43291930247389]
 
 const Location = () => {
   const left = useScrollReveal()

@@ -1,24 +1,20 @@
-import { useEffect } from 'react'
-import { useAnimation } from 'framer-motion'
-import { useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
+import { useAnimation, useInView } from 'framer-motion'
 
-// Hook reutilizable — cualquier componente que quiera animación
-// al hacer scroll solo necesita llamar a useScrollReveal()
 const useScrollReveal = (threshold = 0.15) => {
   const ref = useRef(null)
   const controls = useAnimation()
 
-  // useInView detecta si el elemento está visible en pantalla
-  // threshold: qué porcentaje del elemento debe ser visible (0.15 = 15%)
   const isInView = useInView(ref, { 
-    once: true,        // solo anima una vez, no cada vez que aparece
-    threshold 
+    once: false,      // ← cambio clave: ahora detecta cada vez
+    amount: threshold 
   })
 
   useEffect(() => {
     if (isInView) {
       controls.start('visible')
+    } else {
+      controls.start('hidden')  // ← resetea cuando sale del viewport
     }
   }, [isInView, controls])
 

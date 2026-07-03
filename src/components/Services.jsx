@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import useScrollReveal from '../hooks/useScrollReveal'
 import { fadeUp, staggerContainer, staggerItem } from '../animations/variants'
+import { useWhatsApp } from '../context/WhatsAppContext'
 
 const serviceCategories = [
   {
@@ -83,6 +84,7 @@ const serviceCategories = [
 // El diseño de uñas se cotiza por WhatsApp
 
 const ServiceRow = ({ name, price }) => (
+  
   <motion.div
     variants={staggerItem}
     className="flex justify-between items-baseline group cursor-default py-xs"
@@ -127,7 +129,7 @@ const Services = () => {
   const header = useScrollReveal()
   const note = useScrollReveal()
   const disclaimer = useScrollReveal()
-
+  const { openWhatsApp } = useWhatsApp()
   return (
     <section id="services" className="py-xl">
       <div className="max-w-container-max mx-auto px-md">
@@ -196,14 +198,9 @@ const Services = () => {
           <p className="font-body-md text-body-md text-secondary mb-sm">
             ¿Tienes dudas sobre algún servicio o precio?
           </p>
-          <a
-            href="https://wa.me/528713318615?text=Hola%2C%20me%20gustar%C3%ADa%20informaci%C3%B3n%20sobre%20los%20servicios%20de%20Maria%27s%20Beauty%20Salon"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-primary text-on-primary px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity"
-          >
-            Consultar por WhatsApp
-          </a>
+          <button onClick={openWhatsApp} className="inline-block bg-primary text-on-primary px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity">
+          Consultar por WhatsApp
+          </button>
         </motion.div>
 
       </div>

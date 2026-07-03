@@ -10,14 +10,16 @@ const Hero = () => {
         <motion.div
           variants={fadeLeft}
           initial="hidden"
-          animate="visible"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.3 }}
         >
           <motion.h1
             variants={fadeUp}
             initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.1 }}
+            whileInView="visible"
+            transition={{ delay: 0.2 }}
             className="font-['Bodoni_Moda'] text-6xl md:text-8xl text-primary leading-none mb-md"
+            viewport={{ once: false, amount: 0.3 }}
           >
             Bienvenidos a{' '}
             <span className="italic font-light">
@@ -28,9 +30,10 @@ const Hero = () => {
           <motion.p
             variants={fadeUp}
             initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.3 }}
+            whileInView="visible"
+            transition={{ delay: 0.55 }}
             className="font-body-md text-body-lg text-secondary max-w-prose mb-lg"
+            viewport={{ once: false, amount: 0.3 }}
           >
             Un espacio boutique donde la serenidad se encuentra
             con la excelencia técnica. Redescubre tu estilo en
@@ -40,9 +43,10 @@ const Hero = () => {
           <motion.div
             variants={fadeUp}
             initial="hidden"
-            animate="visible"
-            transition={{ delay: 0.5 }}
+            whileInView="visible"
+            transition={{ delay: 0.85 }}
             className="flex gap-md flex-wrap"
+            viewport={{ once: false, amount: 0.3 }}
           >
             <a
               href="#services"
@@ -63,9 +67,10 @@ const Hero = () => {
         <motion.div
           variants={fadeRight}
           initial="hidden"
-          animate="visible"
+          whileInView="visible"
           transition={{ delay: 0.2 }}
           className="relative flex justify-end"
+          viewport={{ once: false, amount: 0.3 }}
         >
           <div className="w-full max-w-sm aspect-[4/5] relative bg-surface-container-high rounded-sm flex items-center justify-center">
             <p className="text-on-surface-variant font-body-md text-center px-md">
@@ -75,11 +80,12 @@ const Hero = () => {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute -bottom-8 -left-4 bg-surface-container-low p-lg border border-outline-variant/10 shadow-lg hidden md:block rounded-sm"
-          >
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}  // ← cambio
+          transition={{ delay: 1.1, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: false, amount: 0.3 }}
+          className="absolute -bottom-8 -left-4 bg-surface-container-low p-lg border border-outline-variant/10 shadow-lg hidden md:block rounded-sm"
+            >
             <p className="font-headline-md text-xl italic text-primary">
               "Belleza es equilibrio."
             </p>
