@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { fadeUp, fadeLeft, fadeRight } from '../animations/variants'
+import fotoMaria from '../assets/maria.jpeg'
 
 const Hero = () => {
   return (
@@ -72,11 +73,12 @@ const Hero = () => {
           className="relative flex justify-end"
           viewport={{ once: false, amount: 0.3 }}
         >
-          <div className="w-full max-w-sm aspect-[4/5] relative bg-surface-container-high rounded-sm flex items-center justify-center">
-            <p className="text-on-surface-variant font-body-md text-center px-md">
-              📸 Foto de Maria<br/>
-              <span className="text-sm opacity-60">(próximamente)</span>
-            </p>
+          <div className="w-full aspect-[4/5] relative rounded-sm overflow-hidden shadow-xl">
+            <img
+            src={fotoMaria}
+            alt="Maria Guadalupe García Rentería, estilista profesional en Maria's Beauty Salon"
+            className="w-full h-full object-cover"
+            />
           </div>
 
           <motion.div
