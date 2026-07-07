@@ -29,7 +29,7 @@ const Hero = () => {
                 "Belleza es equilibrio."
               </p>
               <p className="font-label-sm text-label-sm text-white/80 uppercase tracking-widest mt-1">
-                — Maria, Directora Creativa
+                — Maria, Estilista profesional
               </p>
             </div>
           </div>
@@ -46,7 +46,7 @@ const Hero = () => {
               "Belleza es equilibrio."
             </p>
             <p className="font-label-sm text-label-sm text-secondary uppercase tracking-widest mt-base">
-              — Maria, Directora Creativa
+              — Maria, Estilista profesional
             </p>
           </motion.div>
         </motion.div>
@@ -81,7 +81,7 @@ const Hero = () => {
             className="font-body-md text-body-md md:text-body-lg text-secondary max-w-prose mx-auto md:mx-0 mb-lg"
             viewport={{ once: false, amount: 0.3 }}
           >
-            Un espacio boutique donde la serenidad se encuentra
+            Un espacio donde la serenidad se encuentra
             con la excelencia técnica. Redescubre tu estilo en
             un entorno de calma y profesionalismo.
           </motion.p>

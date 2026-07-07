@@ -33,8 +33,7 @@ const Location = () => {
             </h2>
             <p className="font-body-lg text-body-lg text-secondary mb-lg">
               Estamos ubicados en el corazón de Torreón, Coahuila.
-              Visítanos en una de las zonas más exclusivas y
-              seguras de la ciudad.
+              
             </p>
 
             <div className="flex items-start gap-md mb-base">
@@ -48,7 +47,7 @@ const Location = () => {
             <div className="flex items-start gap-md mb-lg">
               <span className="text-primary text-xl mt-1">🕐</span>
               <p className="font-body-md text-body-md text-on-surface">
-                Lunes a Domingo: 6:00 AM – 12:00 PM<br />
+                Lunes a Sabado: 9:00 AM – 8:00 PM<br />
                 <span className="font-label-sm text-label-sm text-primary">Solo con cita previa</span>
               </p>
             </div>

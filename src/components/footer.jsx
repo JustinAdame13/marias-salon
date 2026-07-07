@@ -83,10 +83,10 @@ const Footer = () => {
                 Torreón, Coahuila
               </p>
               <p className="font-body-md text-secondary">
-                Lun–Vie: 10am – 8pm
+                Lunes a Sabado: 9:00 AM – 8:00 PM
               </p>
               <p className="font-body-md text-secondary">
-                Sáb: 9am – 6pm
+                Las citas fuera de horario tienen un costo extra
               </p>
             </div>
 
