@@ -5,11 +5,10 @@ import Services from './components/Services'
 import Location from './components/Location'
 import Footer from './components/footer'
 import WhatsAppButton from './components/WhatsAppButton'
-import { WhatsAppProvider } from './context/WhatsAppContext'
 
 function App() {
   return (
-    <WhatsAppProvider>
+    <>
       <Navbar />
       <main>
         <Hero />
@@ -19,7 +18,7 @@ function App() {
       </main>
       <Footer />
       <WhatsAppButton />
-    </WhatsAppProvider>
+    </>
   )
 }
 

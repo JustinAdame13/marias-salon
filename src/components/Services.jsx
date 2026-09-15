@@ -11,7 +11,7 @@ const serviceCategories = [
     services: [
       {
         name: 'Corte de Dama',
-        price: '$200',
+        price: '$250',
         description: 'Corte personalizado según la forma de tu rostro, textura y estilo de vida.',
         duration: '45 min aprox.',
         includes: 'Incluye lavado y peinado básico',
@@ -38,35 +38,35 @@ const serviceCategories = [
     services: [
       {
         name: 'Aplicación de Tinte (tinte propio)',
-        price: '$100',
+        price: '$250',
         description: 'Aplicación profesional usando el tinte que tú traigas.',
         duration: '1 hr aprox.',
         includes: 'Solo mano de obra, no incluye producto ni estilizado',
       },
       {
         name: 'Tinte Global (c. corto)',
-        price: '$400+',
+        price: '$500+',
         description: 'Color uniforme de raíz a puntas para renovar completamente tu tono.',
         duration: '1.5–2 hrs aprox.',
         includes: 'Incluye producto, lavado y secado',
       },
       {
         name: 'Retoque de Raíz (hasta 1.5 cm)',
-        price: '$250',
+        price: '$350',
         description: 'Cubre el crecimiento natural manteniendo el tono uniforme.',
         duration: '1 hr aprox.',
         includes: 'Incluye producto y lavado',
       },
       {
         name: 'Mechas y Rayos (c. corto)',
-        price: '$600+',
+        price: '$700+',
         description: 'Iluminación parcial con papel o gorro para dar dimensión al cabello.',
         duration: '2–2.5 hrs aprox.',
         includes: 'Incluye matizado, lavado y secado',
       },
       {
         name: 'Balayage y Babylight',
-        price: '$900+',
+        price: '$100+',
         description: 'Técnica de iluminación a mano alzada para un efecto natural y degradado.',
         duration: '3–4 hrs aprox.',
         includes: 'Incluye matizado, tratamiento post-color, lavado y secado',
@@ -162,14 +162,14 @@ const serviceCategories = [
       },
       {
         name: 'Pestañas Clásicas (pelo a pelo)',
-        price: '$380',
+        price: '$400',
         description: 'Una extensión por cada pestaña natural, efecto natural y elegante.',
         duration: '1.5 hrs aprox.',
         includes: 'Duración aprox. 3 semanas',
       },
       {
         name: 'Pestañas Híbridas',
-        price: '$400',
+        price: '$450',
         description: 'Mezcla de técnica clásica y volumen para un efecto más tupido.',
         duration: '1.5–2 hrs aprox.',
         includes: 'Duración aprox. 3 semanas',
@@ -183,7 +183,7 @@ const serviceCategories = [
       },
       {
         name: 'Pestañas Griego',
-        price: '$400',
+        price: '$450',
         description: 'Efecto de volumen natural que combina densidad en las esquinas.',
         duration: '1.5–2 hrs aprox.',
         includes: 'Duración aprox. 3 semanas',
@@ -194,6 +194,13 @@ const serviceCategories = [
         description: 'Múltiples extensiones por pestaña natural para máximo volumen.',
         duration: '2–2.5 hrs aprox.',
         includes: 'Duración aprox. 3–4 semanas',
+      },
+      {
+        name: 'Retoque de pestañas',
+        price: '$300',
+        description: '',
+        duration: '1 hrs aprox.',
+        includes: 'Duración aprox. 3 semanas',
       },
     ],
   },
@@ -207,6 +214,14 @@ const serviceCategories = [
         description: 'Uñas esculpidas con acrílico, resistentes y de acabado duradero.',
         duration: '1.5 hrs aprox.',
         includes: 'Incluye esmaltado semipermanente',
+      },
+      //aqui faltan detalles
+      {
+        name: 'SoftGel',
+        price: '$280',
+        description: '',
+        duration: '1.5 hrs aprox.',
+        includes: '',
       },
       {
         name: 'Largo #1',
@@ -257,6 +272,39 @@ const serviceCategories = [
         duration: '45 min aprox.',
         includes: 'Duración aprox. 2–3 semanas',
       },
+      //aqui faltan detalles
+      {
+        name: 'Retiro',
+        price: '$150',
+        description: '',
+        duration: '',
+        includes: '',
+      },
+      //aqui faltan detalles
+      {
+        name: 'Retoque',
+        price: '$280',
+        description: '',
+        duration: '',
+        includes: '',
+      },
+      //aqui faltan detalles
+      {
+        name: 'Rubber',
+        price: '$250',
+        description: '',
+        duration: '',
+        includes: '',
+      },
+      //aqui faltan detalles
+      {
+        name: 'Manicura',
+        price: '$250',
+        description: '',
+        duration: '45 min aprox.',
+        includes: '',
+      },
+      
     ],
   },
   {

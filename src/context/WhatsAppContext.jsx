@@ -11,16 +11,24 @@ const isMobileDevice = () =>
 
 export const WhatsAppProvider = ({ children }) => {
   const [showModal, setShowModal] = useState(false)
+  const [activeUrl, setActiveUrl] = useState(WHATSAPP_URL)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setIsMobile(isMobileDevice())
   }, [])
 
-  const openWhatsApp = () => {
+  // Ahora openWhatsApp acepta un mensaje opcional.
+  // Si no se pasa nada, usa el mensaje genérico de siempre.
+  const openWhatsApp = (customMessage) => {
+    const url = customMessage
+      ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(customMessage)}`
+      : WHATSAPP_URL
+
     if (isMobile) {
-      window.open(WHATSAPP_URL, '_blank')
+      window.open(url, '_blank')
     } else {
+      setActiveUrl(url)
       setShowModal(true)
     }
   }
@@ -28,12 +36,10 @@ export const WhatsAppProvider = ({ children }) => {
   const closeModal = () => setShowModal(false)
 
   return (
-    <WhatsAppContext.Provider value={{ openWhatsApp, showModal, closeModal }}>
+    <WhatsAppContext.Provider value={{ openWhatsApp, showModal, closeModal, activeUrl }}>
       {children}
     </WhatsAppContext.Provider>
   )
 }
 
-// Hook personalizado — cualquier componente llama useWhatsApp()
-// y obtiene { openWhatsApp } sin saber nada del Context internamente
 export const useWhatsApp = () => useContext(WhatsAppContext)
