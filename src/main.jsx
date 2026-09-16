@@ -10,6 +10,7 @@ import { WhatsAppProvider } from './context/WhatsAppContext.jsx'
 import WhatsAppModal from './components/WhatsAppModal.jsx'
 import { AgendaAuthProvider } from './context/AgendaAuthContext.jsx'
 import ProtectedRoute from './components/agenda/ProtectedRoute.jsx'
+import RoleRoute from './components/agenda/RoleRoute.jsx'
 import AgendaLayout from './components/agenda/AgendaLayout.jsx'
 import AgendaLogin from './pages/agenda/Login.jsx'
 import AgendaDashboard from './pages/agenda/Dashboard.jsx'
@@ -44,10 +45,22 @@ createRoot(document.getElementById('root')).render(
               <Route path="citas" element={<Citas />} />
               <Route path="clientas" element={<Clientas />} />
               <Route path="servicios" element={<Servicios />} />
-              <Route path="plantillas" element={<Plantillas />} />
-              <Route path="empleadas" element={<Empleadas />} />
-              <Route path="mensajes" element={<Mensajes />} />
-              <Route path="usuarios" element={<Usuarios />} />
+              <Route
+                path="plantillas"
+                element={<RoleRoute allowedRoles={['ADMIN']}><Plantillas /></RoleRoute>}
+              />
+              <Route
+                path="empleadas"
+                element={<RoleRoute allowedRoles={['ADMIN']}><Empleadas /></RoleRoute>}
+              />
+              <Route
+                path="mensajes"
+                element={<RoleRoute allowedRoles={['ADMIN']}><Mensajes /></RoleRoute>}
+              />
+              <Route
+                path="usuarios"
+                element={<RoleRoute allowedRoles={['ADMIN']}><Usuarios /></RoleRoute>}
+              />
             </Route>
           </Routes>
           <WhatsAppModal />

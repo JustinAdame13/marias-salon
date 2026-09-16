@@ -32,7 +32,7 @@ const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
     }
 
     try {
-      const path = esEdicion ? `/Clientas/id/${clienta.id}` : '/Clientas/post'
+      const path = esEdicion ? `/Clientas/id/${clienta.id}` : '/Clientas'
       const res = await request(path, {
         method: esEdicion ? 'PUT' : 'POST',
         body: JSON.stringify(body),

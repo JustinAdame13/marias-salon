@@ -15,7 +15,7 @@ const ESTADOS_CITA = [
 const Citas = () => {
   const { request } = useAgendaApi()
   const { user } = useAgendaAuth()
-  const puedeModificar = user?.rol === 'ADMIN' || user?.rol === 'JEFA'
+  const puedeModificar = true
 
   const [citas, setCitas] = useState([])
   const [clientas, setClientas] = useState([])

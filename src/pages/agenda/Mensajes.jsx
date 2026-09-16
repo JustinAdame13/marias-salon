@@ -7,7 +7,7 @@ import { es } from 'date-fns/locale'
 
 const ESTADOS_MENSAJE = [
   { value: 'PROGRAMADO', label: 'Programado' },
-  { value: 'EXITOSO', label: 'Exitoso' },
+  { value: 'ENVIADO', label: 'Enviado' },
   { value: 'FALLIDO', label: 'Fallido' },
 ]
 
