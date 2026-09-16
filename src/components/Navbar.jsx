@@ -16,20 +16,20 @@ const Navbar = () => {
   const { openWhatsApp } = useWhatsApp()
   return (
     <header className="w-full top-0 sticky z-50 bg-surface/80 backdrop-blur-md">
-      <nav className="max-w-container-max mx-auto px-md py-sm flex justify-between items-center">
+      <nav className="max-w-container-max mx-auto px-2 sm:px-md py-2 sm:py-sm flex justify-between items-center">
 
-        <span className="font-headline-md text-2xl text-primary tracking-widest uppercase">
+        <span className="font-headline-md text-xl sm:text-2xl text-primary tracking-widest uppercase">
           Maria's
         </span>
 
         <div className="hidden md:flex gap-lg">
-          <a href="#services" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300">
+          <a href="#services" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300 text-sm">
             Servicios
           </a>
-          <a href="#about" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300">
+          <a href="#about" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300 text-sm">
             Estilista
           </a>
-          <a href="#location" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300">
+          <a href="#location" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300 text-sm">
             Ubicación
           </a>
         </div>
@@ -57,7 +57,7 @@ const Navbar = () => {
             </a>
           </div>
 
-          <button onClick={openWhatsApp} className="bg-primary text-on-primary px-md py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity active:opacity-70">
+          <button onClick={openWhatsApp} className="bg-primary text-on-primary px-2 sm:px-md py-1 sm:py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity active:opacity-70 text-xs sm:text-sm">
             Reservar Cita
           </button>
         </div>

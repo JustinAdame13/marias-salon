@@ -17,16 +17,16 @@ const Footer = () => {
     <footer className="w-full bg-surface-container-low">
 
       {/* Bloque principal */}
-      <div className="max-w-container-max mx-auto px-md py-xl">
+      <div className="max-w-container-max mx-auto px-2 sm:px-md py-8 sm:py-xl">
         <div className="flex flex-col md:flex-row justify-between items-start gap-xl">
 
           {/* Columna izquierda — identidad */}
           {/* max-w-sm limita el ancho para que el texto no sea tan angosto */}
           <div className="flex flex-col gap-sm w-full md:w-80">
-            <span className="font-headline-md text-2xl text-primary tracking-widest uppercase">
+            <span className="font-headline-md text-xl sm:text-2xl text-primary tracking-widest uppercase">
               Maria's
             </span>
-            <p className="font-body-md text-body-md text-secondary leading-relaxed">
+            <p className="font-body-md text-body-sm sm:text-body-md text-secondary leading-relaxed">
               Redefiniendo la belleza a través del equilibrio
               y la atención personalizada en Torreón.
             </p>
@@ -38,7 +38,7 @@ const Footer = () => {
                 href="https://www.instagram.com/mariassbeautysalon/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-xs border border-primary/30 text-primary px-md py-xs rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all duration-300"
+                className="flex items-center gap-xs border border-primary/30 text-primary px-md py-xs rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all duration-300 text-xs sm:text-sm"
               >
                 <InstagramIcon />
                 Instagram
@@ -47,7 +47,7 @@ const Footer = () => {
                 href="https://www.facebook.com/lupita.Garcia.Renteria.7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-xs border border-primary/30 text-primary px-md py-xs rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all duration-300"
+                className="flex items-center gap-xs border border-primary/30 text-primary px-md py-xs rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all duration-300 text-xs sm:text-sm"
               >
                 <FacebookIcon />
                 Facebook
@@ -56,36 +56,36 @@ const Footer = () => {
           </div>
 
           {/* Columna derecha — navegación */}
-          <div className="flex gap-xl">
+          <div className="flex gap-xl sm:gap-xl">
 
             {/* Explora */}
             <div className="flex flex-col gap-base">
-              <span className="font-label-md text-label-md text-primary uppercase tracking-wider">
+              <span className="font-label-md text-label-sm sm:text-label-md text-primary uppercase tracking-wider">
                 Explora
               </span>
-              <a href="#services" className="font-body-md text-secondary hover:text-primary transition-colors">
+              <a href="#services" className="font-body-md text-body-sm sm:text-body-md text-secondary hover:text-primary transition-colors">
                 Servicios
               </a>
-              <a href="#about" className="font-body-md text-secondary hover:text-primary transition-colors">
+              <a href="#about" className="font-body-md text-body-sm sm:text-body-md text-secondary hover:text-primary transition-colors">
                 Acerca de
               </a>
-              <a href="#location" className="font-body-md text-secondary hover:text-primary transition-colors">
+              <a href="#location" className="font-body-md text-body-sm sm:text-body-md text-secondary hover:text-primary transition-colors">
                 Ubicación
               </a>
             </div>
 
             {/* Contacto */}
             <div className="flex flex-col gap-base">
-              <span className="font-label-md text-label-md text-primary uppercase tracking-wider">
+              <span className="font-label-md text-label-sm sm:text-label-md text-primary uppercase tracking-wider">
                 Contacto
               </span>
-              <p className="font-body-md text-secondary">
+              <p className="font-body-md text-body-sm sm:text-body-md text-secondary">
                 Torreón, Coahuila
               </p>
-              <p className="font-body-md text-secondary">
+              <p className="font-body-md text-body-sm sm:text-body-md text-secondary">
                 Lunes a Sabado: 9:00 AM – 8:00 PM
               </p>
-              <p className="font-body-md text-secondary">
+              <p className="font-body-md text-body-sm sm:text-body-md text-secondary">
                 Las citas fuera de horario tienen un costo extra
               </p>
             </div>
@@ -96,8 +96,8 @@ const Footer = () => {
 
       {/* Franja de copyright */}
       <div className="border-t border-outline-variant/10">
-        <div className="max-w-container-max mx-auto px-md py-md">
-          <p className="font-body-md text-body-md text-secondary text-center md:text-left">
+        <div className="max-w-container-max mx-auto px-2 sm:px-md py-md">
+          <p className="font-body-md text-body-sm sm:text-body-md text-secondary text-center md:text-left">
             © {new Date().getFullYear()} Maria's Beauty Salon. Torreón, Coahuila.
           </p>
         </div>

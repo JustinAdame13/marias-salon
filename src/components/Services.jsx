@@ -354,11 +354,11 @@ const ServiceRow = ({ service, isOpen, onToggle }) => (
       className="w-full flex justify-between items-baseline group cursor-pointer text-left"
       aria-expanded={isOpen}
     >
-      <span className="font-body-md text-body-md group-hover:text-primary transition-colors">
+      <span className="font-body-md text-body-sm sm:text-body-md group-hover:text-primary transition-colors">
         {service.name}
       </span>
       <div className="flex-grow mx-base border-b border-dotted border-outline-variant/30" />
-      <span className="font-label-md text-label-md text-secondary whitespace-nowrap">
+      <span className="font-label-md text-label-sm sm:text-label-md text-secondary whitespace-nowrap">
         {service.price}
       </span>
     </button>
@@ -373,7 +373,7 @@ const ServiceRow = ({ service, isOpen, onToggle }) => (
           className="overflow-hidden"
         >
           <div className="pt-sm pb-base pl-base border-l-2 border-primary/20 ml-xs mt-xs">
-            <p className="font-body-md text-body-md text-on-surface-variant mb-xs">
+            <p className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant mb-xs">
               {service.description}
             </p>
             <p className="font-label-sm text-label-sm text-secondary">
@@ -400,7 +400,7 @@ const ServiceCategory = ({ title, services, openService, onToggle }) => {
     >
       <motion.h3
         variants={staggerItem}
-        className="font-headline-md text-headline-md border-b border-primary/10 pb-base text-primary mb-sm"
+        className="font-headline-md text-headline-base sm:text-headline-md border-b border-primary/10 pb-base text-primary mb-sm"
       >
         {title}
       </motion.h3>
@@ -432,20 +432,20 @@ const Services = () => {
   }
 
   return (
-    <section id="services" className="py-xl">
-      <div className="max-w-container-max mx-auto px-md">
+    <section id="services" className="py-8 sm:py-xl">
+      <div className="max-w-container-max mx-auto px-2 sm:px-md">
 
         <motion.div
           ref={header.ref}
           variants={fadeUp}
           initial="hidden"
           animate={header.controls}
-          className="text-center mb-xl"
+          className="text-center mb-8 sm:mb-xl"
         >
-          <span className="font-label-md text-label-md text-primary tracking-[0.2em] uppercase block mb-sm">
+          <span className="font-label-md text-label-sm sm:text-label-md text-primary tracking-[0.2em] uppercase block mb-sm">
             Menú de Servicios
           </span>
-          <h2 className="font-display-lg text-5xl md:text-6xl text-on-background">
+          <h2 className="font-display-lg text-3xl sm:text-5xl md:text-6xl text-on-background">
             Precios & Servicios
           </h2>
         </motion.div>
@@ -467,22 +467,22 @@ const Services = () => {
           variants={fadeUp}
           initial="hidden"
           animate={disclaimer.controls}
-          className="mt-lg p-lg bg-surface-container-low rounded-sm border border-primary/5 w-full max-w-2xl mx-auto"
+          className="mt-lg p-3 sm:p-lg bg-surface-container-low rounded-sm border border-primary/5 w-full max-w-2xl mx-auto"
         >
-          <h4 className="font-label-md text-label-md text-primary uppercase tracking-wider mb-sm text-center">
+          <h4 className="font-label-md text-label-sm sm:text-label-md text-primary uppercase tracking-wider mb-sm text-center">
             Notas Importantes
           </h4>
           <ul className="space-y-xs">
-            <li className="font-body-md text-body-md text-on-surface-variant">
+            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
               · Los precios con <strong>+</strong> aumentan según el largo y volumen del cabello.
             </li>
-            <li className="font-body-md text-body-md text-on-surface-variant">
+            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
               · El diseño de uñas se cotiza por WhatsApp — puede tener costo adicional.
             </li>
-            <li className="font-body-md text-body-md text-on-surface-variant">
+            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
               · Para pestañas, acudir <strong>sin maquillaje</strong> a la cita.
             </li>
-            <li className="font-body-md text-body-md text-on-surface-variant">
+            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
               · Atención <strong>exclusiva con cita previa</strong>, una clienta a la vez.
             </li>
           </ul>
@@ -495,10 +495,10 @@ const Services = () => {
           animate={note.controls}
           className="mt-md text-center"
         >
-          <p className="font-body-md text-body-md text-secondary mb-sm">
+          <p className="font-body-md text-body-sm sm:text-body-md text-secondary mb-sm">
             ¿Tienes dudas sobre algún servicio o precio?
           </p>
-          <button onClick={openWhatsApp} className="inline-block bg-primary text-on-primary px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity">
+          <button onClick={openWhatsApp} className="inline-block bg-primary text-on-primary px-base sm:px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity text-xs sm:text-sm">
           Consultar por WhatsApp
           </button>
         </motion.div>

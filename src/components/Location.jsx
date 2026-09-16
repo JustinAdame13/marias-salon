@@ -18,8 +18,8 @@ const Location = () => {
   const right = useScrollReveal()
 
   return (
-    <section id="location" className="py-xl bg-surface-container-high">
-      <div className="max-w-container-max mx-auto px-md">
+    <section id="location" className="py-8 sm:py-xl bg-surface-container-high">
+      <div className="max-w-container-max mx-auto px-2 sm:px-md">
         <div className="grid md:grid-cols-2 gap-lg items-center">
 
           <motion.div
@@ -28,25 +28,25 @@ const Location = () => {
             initial="hidden"
             animate={left.controls}
           >
-            <h2 className="font-headline-lg text-headline-lg text-primary mb-md">
+            <h2 className="font-headline-lg text-headline-base sm:text-headline-lg text-primary mb-md">
               Ubicación Boutique
             </h2>
-            <p className="font-body-lg text-body-lg text-secondary mb-lg">
+            <p className="font-body-md text-body-sm sm:text-body-lg text-secondary mb-lg">
               Estamos ubicados en el corazón de Torreón, Coahuila.
               
             </p>
 
             <div className="flex items-start gap-md mb-base">
-              <span className="text-primary text-xl mt-1">📍</span>
-              <address className="not-italic font-body-md text-body-md text-on-surface">
+              <span className="text-primary text-lg sm:text-xl mt-1">📍</span>
+              <address className="not-italic font-body-md text-body-sm sm:text-body-md text-on-surface">
                 Cesáreo Castro 662, Lucio Blanco<br />
                 27230 Torreón, Coahuila
               </address>
             </div>
 
             <div className="flex items-start gap-md mb-lg">
-              <span className="text-primary text-xl mt-1">🕐</span>
-              <p className="font-body-md text-body-md text-on-surface">
+              <span className="text-primary text-lg sm:text-xl mt-1">🕐</span>
+              <p className="font-body-md text-body-sm sm:text-body-md text-on-surface">
                 Lunes a Sabado: 9:00 AM – 8:00 PM<br />
                 <span className="font-label-sm text-label-sm text-primary">Solo con cita previa</span>
               </p>
@@ -56,7 +56,7 @@ const Location = () => {
               href="https://maps.app.goo.gl/CDqp75T3Qs8n8Wco7"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block border border-primary text-primary px-lg py-sm rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all"
+              className="inline-block border border-primary text-primary px-base sm:px-lg py-sm rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all text-xs sm:text-sm"
             >
               Cómo llegar
             </a>
@@ -68,7 +68,7 @@ const Location = () => {
             initial="hidden"
             animate={right.controls}
           >
-            <div className="h-96 md:h-[450px] w-full rounded-sm overflow-hidden shadow-inner z-0">
+            <div className="h-64 sm:h-96 md:h-[450px] w-full rounded-sm overflow-hidden shadow-inner z-0">
               <MapContainer
                 center={SALON_POSITION}
                 zoom={15}
