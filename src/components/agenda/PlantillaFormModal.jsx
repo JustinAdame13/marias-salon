@@ -16,14 +16,42 @@ const PlantillaFormModal = ({ plantilla, onClose, onSaved }) => {
     nombreMeta: plantilla?.nombreMeta || '',
     diasOffset: plantilla?.diasOffset || '',
     ordenParametros: plantilla?.ordenParametros || [],
+    headerImageUrl: plantilla?.headerImageUrl || '',
   })
   const [parametroInput, setParametroInput] = useState('')
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
+  const [imagePreview, setImagePreview] = useState(plantilla?.headerImageUrl || '')
+
+  useEffect(() => {
+    if (plantilla) {
+      setForm({
+        tipo: plantilla.tipo || TIPOS_PLANTILLA[0].value,
+        nombreMeta: plantilla.nombreMeta || '',
+        diasOffset: plantilla.diasOffset || '',
+        ordenParametros: plantilla.ordenParametros || [],
+        headerImageUrl: plantilla.headerImageUrl || '',
+      })
+      setImagePreview(plantilla.headerImageUrl || '')
+    } else {
+      setForm({
+        tipo: TIPOS_PLANTILLA[0].value,
+        nombreMeta: '',
+        diasOffset: '',
+        ordenParametros: [],
+        headerImageUrl: '',
+      })
+      setImagePreview('')
+    }
+  }, [plantilla])
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+    
+    if (name === 'headerImageUrl') {
+      setImagePreview(value || '')
+    }
   }
 
   const agregarParametro = () => {
@@ -120,6 +148,33 @@ const PlantillaFormModal = ({ plantilla, onClose, onSaved }) => {
           />
           <span className="text-xs text-secondary">Días antes/después para enviar el mensaje</span>
         </label>
+
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          URL de imagen del header
+          <input
+            type="url"
+            name="headerImageUrl"
+            value={form.headerImageUrl}
+            onChange={handleChange}
+            placeholder="https://ejemplo.com/imagen.jpg"
+            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <span className="text-xs text-secondary">URL pública HTTPS de la imagen para el header de WhatsApp</span>
+        </label>
+
+        {imagePreview && (
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium">Vista previa</span>
+            <div className="relative w-full h-32 bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/20">
+              <img
+                src={imagePreview}
+                alt="Vista previa del header"
+                className="w-full h-full object-contain"
+                onError={() => setImagePreview('')}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1">
           <span className="text-sm font-medium">Orden de parámetros</span>

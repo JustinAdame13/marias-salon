@@ -143,6 +143,7 @@ const Plantillas = () => {
                 <th className="px-md py-sm font-label-md text-secondary">Nombre</th>
                 <th className="px-md py-sm font-label-md text-secondary">Tipo</th>
                 <th className="px-md py-sm font-label-md text-secondary">Días Offset</th>
+                <th className="px-md py-sm font-label-md text-secondary">Imagen Header</th>
                 <th className="px-md py-sm font-label-md text-secondary">Servicios</th>
                 {puedeModificar && (
                   <th className="px-md py-sm font-label-md text-secondary text-right">Acciones</th>
@@ -155,6 +156,22 @@ const Plantillas = () => {
                   <td className="px-md py-sm">{p.nombreMeta}</td>
                   <td className="px-md py-sm capitalize">{getTipoLabel(p.tipo)}</td>
                   <td className="px-md py-sm">{p.diasOffset !== null ? p.diasOffset : '—'}</td>
+                  <td className="px-md py-sm">
+                    {p.headerImageUrl ? (
+                      <div className="relative w-12 h-12 bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/20">
+                        <img
+                          src={p.headerImageUrl}
+                          alt="Header"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-secondary text-xs">Sin imagen</span>
+                    )}
+                  </td>
                   <td className="px-md py-sm">
                     {p.idsServicios && p.idsServicios.length > 0 ? (
                       <span className="text-xs bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full">

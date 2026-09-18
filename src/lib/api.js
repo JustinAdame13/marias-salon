@@ -12,3 +12,15 @@ export function apiFetch(path, { credentials, ...options } = {}) {
 
   return fetch(`${API_URL}${path}`, { ...options, headers })
 }
+export async function despertarServidor(intentos = 10, esperaMs = 4000) {
+  for (let i = 0; i < intentos; i++) {
+    try {
+      const res = await fetch(`${API_URL}/internal/ping`)
+      if (res.ok) return true
+    } catch {
+      // aún dormido o red no lista, seguimos intentando
+    }
+    await new Promise((r) => setTimeout(r, esperaMs))
+  }
+  return false
+}
