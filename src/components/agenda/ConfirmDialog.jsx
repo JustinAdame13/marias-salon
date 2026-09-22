@@ -1,6 +1,9 @@
 const ConfirmDialog = ({ title, message, onConfirm, onCancel }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-    <div className="bg-surface-container-lowest rounded-lg shadow-2xl p-lg w-full max-w-sm flex flex-col gap-md">
+    <div
+      style={{ width: '90vw', maxWidth: '400px', minWidth: '280px' }}
+      className="bg-surface-container-lowest rounded-lg shadow-2xl p-lg flex flex-col gap-md my-auto shrink-0 box-border"
+    >
       <h3 className="font-headline-md text-lg text-primary">{title}</h3>
       <p className="text-sm text-secondary">{message}</p>
       <div className="flex justify-end gap-sm mt-sm">

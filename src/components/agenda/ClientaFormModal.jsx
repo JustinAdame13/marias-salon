@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
 
+const PREFIJO_TELEFONO = '521'
+
 const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
   const { request } = useAgendaApi()
   const esEdicion = Boolean(clienta)
 
   const [form, setForm] = useState({
     nombre: clienta?.nombre || '',
-    telefono: clienta?.telefono || '',
+    telefono: clienta?.telefono?.startsWith(PREFIJO_TELEFONO)
+      ? clienta.telefono.slice(PREFIJO_TELEFONO.length)
+      : clienta?.telefono || '',
     fechaNacimiento: clienta?.fechaNacimiento || '',
     recordatorios: clienta?.recordatorios ?? true,
     marketing: clienta?.marketing ?? false,
@@ -18,16 +22,30 @@ const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
+
+    if (name === 'telefono') {
+      const soloDigitos = value.replace(/\D/g, '').slice(0, 10)
+      setForm((prev) => ({ ...prev, telefono: soloDigitos }))
+      return
+    }
+
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setGuardando(true)
     setError('')
+
+    if (form.telefono.length !== 10) {
+      setError('El teléfono debe tener 10 dígitos')
+      return
+    }
+
+    setGuardando(true)
 
     const body = {
       ...form,
+      telefono: `${PREFIJO_TELEFONO}${form.telefono}`,
       fechaNacimiento: form.fechaNacimiento || null,
     }
 
@@ -75,14 +93,20 @@ const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
 
         <label className="flex flex-col gap-1 text-sm font-medium">
           Teléfono
-          <input
-            name="telefono"
-            value={form.telefono}
-            onChange={handleChange}
-            required
-            placeholder="52XXXXXXXXXX"
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-          />
+          <div className="flex items-stretch border border-outline-variant rounded-sm overflow-hidden focus-within:ring-1 focus-within:ring-primary">
+            <span className="flex items-center px-2 bg-surface-container text-secondary text-base sm:text-sm select-none">
+              +{PREFIJO_TELEFONO}
+            </span>
+            <input
+              name="telefono"
+              value={form.telefono}
+              onChange={handleChange}
+              required
+              inputMode="numeric"
+              placeholder="8713960369"
+              className="flex-1 p-2 w-full text-base sm:text-sm focus:outline-none min-w-0"
+            />
+          </div>
         </label>
 
         <label className="flex flex-col gap-1 text-sm font-medium">

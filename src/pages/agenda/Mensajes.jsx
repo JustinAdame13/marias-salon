@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import ConfirmDialog from '../../components/agenda/ConfirmDialog'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 const ESTADOS_MENSAJE = [
@@ -88,7 +88,7 @@ const Mensajes = () => {
     switch (estado) {
       case 'PROGRAMADO':
         return 'bg-primary-container text-on-primary-container border-l-4 border-primary'
-      case 'EXITOSO':
+      case 'ENVIADO':
         return 'bg-tertiary-container text-on-tertiary-container border-l-4 border-tertiary'
       case 'FALLIDO':
         return 'bg-error-container text-on-error-container border-l-4 border-error'
@@ -136,9 +136,9 @@ const Mensajes = () => {
 
   const getMensajesDelDia = (dia) => {
     return mensajes.filter(mensaje => {
-      const fechaMensaje = new Date(mensaje.fechaProgramada)
+      const fechaMensaje = parseISO(mensaje.fechaProgramada)
       return isSameDay(fechaMensaje, dia)
-    }).sort((a, b) => new Date(a.fechaProgramada) - new Date(b.fechaProgramada))
+    }).sort((a, b) => parseISO(a.fechaProgramada) - parseISO(b.fechaProgramada))
   }
 
   return (
