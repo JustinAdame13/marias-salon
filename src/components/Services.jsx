@@ -66,7 +66,7 @@ const serviceCategories = [
       },
       {
         name: 'Balayage y Babylight',
-        price: '$100+',
+        price: '$1000+',
         description: 'Técnica de iluminación a mano alzada para un efecto natural y degradado.',
         duration: '3–4 hrs aprox.',
         includes: 'Incluye matizado, tratamiento post-color, lavado y secado',
