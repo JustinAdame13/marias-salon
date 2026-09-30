@@ -1,21 +1,19 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { format, parseISO, isToday, startOfDay } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import ConfirmDialog from '../../components/agenda/ConfirmDialog'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { Aviso, Chip, ErrorBanner, Titulo } from '../../components/agenda/ui'
+import { CARD } from '../../components/agenda/estilos'
 
-const ESTADOS_MENSAJE = [
-  { value: 'PROGRAMADO', label: 'Programado' },
-  { value: 'ENVIADO', label: 'Enviado' },
-  { value: 'FALLIDO', label: 'Fallido' },
-]
-
-const TIPOS_PLANTILLA = {
-  RECORDATORIO: 'Recordatorio',
-  SEGUIMIENTO: 'Seguimiento',
-  CUMPLE: 'Cumpleaños',
+const ESTADOS = {
+  PROGRAMADO: { label: 'Programado', tono: 'primary', acento: 'bg-[#7d484e]' },
+  ENVIADO: { label: 'Enviado', tono: 'sage', acento: 'bg-[#c99a96]' },
+  FALLIDO: { label: 'Fallido', tono: 'error', acento: 'bg-error' },
 }
+
+const TIPOS_PLANTILLA = { RECORDATORIO: 'Recordatorio', SEGUIMIENTO: 'Seguimiento', CUMPLE: 'Cumpleaños' }
 
 const Mensajes = () => {
   const { request } = useAgendaApi()
@@ -27,75 +25,65 @@ const Mensajes = () => {
   const [clientas, setClientas] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [filtroEstado, setFiltroEstado] = useState('')
-  const [mesActual, setMesActual] = useState(new Date())
-  const [mensajeSeleccionado, setMensajeSeleccionado] = useState(null)
+  const [vista, setVista] = useState('proximos')
+  const [filtro, setFiltro] = useState('')
   const [mensajeAEliminar, setMensajeAEliminar] = useState(null)
 
-  const cargarDatos = useCallback(async () => {
+  const cargar = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [mensajesRes, plantillasRes, clientasRes] = await Promise.all([
-        request('/Mensajes'),
-        request('/Plantillas'),
-        request('/Clientas')
-      ])
-      
-      if (!mensajesRes.ok) throw new Error('No se pudieron cargar los mensajes')
-      if (!plantillasRes.ok) throw new Error('No se pudieron cargar las plantillas')
-      if (!clientasRes.ok) throw new Error('No se pudieron cargar las clientas')
-      
-      const todosLosMensajes = await mensajesRes.json()
-      const plantillasData = await plantillasRes.json()
-      const clientasData = await clientasRes.json()
-      
-      setPlantillas(plantillasData)
-      setClientas(clientasData)
-      
-      let filtrados = todosLosMensajes
-      if (filtroEstado) {
-        filtrados = filtrados.filter(m => m.estado === filtroEstado)
-      }
-      
-      setMensajes(filtrados)
+      const respuestas = await Promise.all(
+        ['/Mensajes', '/Plantillas', '/Clientas'].map((p) => request(p))
+      )
+      if (respuestas.some((r) => !r.ok)) throw new Error('No se pudieron cargar los mensajes')
+      const [m, p, c] = await Promise.all(respuestas.map((r) => r.json()))
+      setMensajes(m)
+      setPlantillas(p)
+      setClientas(c)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [request, filtroEstado])
+  }, [request])
 
   useEffect(() => {
-    cargarDatos()
-  }, [cargarDatos])
+    cargar()
+  }, [cargar])
 
-  const handleMesAnterior = () => setMesActual(subMonths(mesActual, 1))
-  const handleMesSiguiente = () => setMesActual(addMonths(mesActual, 1))
-  const handleHoy = () => setMesActual(new Date())
+  const plantillaPorId = useMemo(() => new Map(plantillas.map((p) => [p.id, p])), [plantillas])
+  const clientaPorId = useMemo(() => new Map(clientas.map((c) => [c.id, c])), [clientas])
 
-  const getTipoPlantilla = (idPlantilla) => {
-    const plantilla = plantillas.find(p => p.id === idPlantilla)
-    return plantilla ? TIPOS_PLANTILLA[plantilla.tipo] || plantilla.tipo : 'Desconocido'
-  }
+  const conteo = (estado) => mensajes.filter((m) => m.estado === estado).length
 
-  const getNombreClienta = (idClienta) => {
-    const clienta = clientas.find(c => c.id === idClienta)
-    return clienta ? clienta.nombre : `Clienta ${idClienta}`
-  }
+  // Si filtras por "Fallidos" se muestran todos, sin importar si son próximos o anteriores,
+  // para que ninguno se te escape.
+  const grupos = useMemo(() => {
+    const hoy = startOfDay(new Date())
+    const ignorarVista = filtro === 'FALLIDO'
+    const proximos = vista === 'proximos' && !ignorarVista
 
-  const getEstadoColor = (estado) => {
-    switch (estado) {
-      case 'PROGRAMADO':
-        return 'bg-primary-container text-on-primary-container border-l-4 border-primary'
-      case 'ENVIADO':
-        return 'bg-tertiary-container text-on-tertiary-container border-l-4 border-tertiary'
-      case 'FALLIDO':
-        return 'bg-error-container text-on-error-container border-l-4 border-error'
-      default:
-        return 'bg-secondary-container text-on-secondary-container'
-    }
-  }
+    const lista = mensajes
+      .filter((m) => !filtro || m.estado === filtro)
+      .filter((m) => {
+        if (ignorarVista) return true
+        const f = parseISO(m.fechaProgramada)
+        return vista === 'proximos' ? f >= hoy : f < hoy
+      })
+      .sort((a, b) => {
+        const diff = parseISO(a.fechaProgramada) - parseISO(b.fechaProgramada)
+        return proximos ? diff : -diff
+      })
+
+    const mapa = new Map()
+    lista.forEach((m) => {
+      const k = format(parseISO(m.fechaProgramada), 'yyyy-MM-dd')
+      if (!mapa.has(k)) mapa.set(k, [])
+      mapa.get(k).push(m)
+    })
+    return [...mapa.entries()]
+  }, [mensajes, vista, filtro])
 
   const handleReintentar = async (mensaje) => {
     try {
@@ -104,11 +92,11 @@ const Mensajes = () => {
         body: JSON.stringify({
           estado: 'PROGRAMADO',
           intentos: (mensaje.intentos || 0) + 1,
-          fechaEnvio: null
-        })
+          fechaEnvio: null,
+        }),
       })
       if (!res.ok) throw new Error('No se pudo reintentar el mensaje')
-      cargarDatos()
+      cargar()
     } catch (err) {
       setError(err.message)
     }
@@ -119,198 +107,119 @@ const Mensajes = () => {
       const res = await request(`/Mensajes/id/${mensajeAEliminar.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('No se pudo eliminar el mensaje')
       setMensajeAEliminar(null)
-      cargarDatos()
+      cargar()
     } catch (err) {
       setError(err.message)
       setMensajeAEliminar(null)
     }
   }
 
-  const diasDelMes = eachDayOfInterval({
-    start: startOfMonth(mesActual),
-    end: endOfMonth(mesActual)
-  })
-
-  const diaInicioMes = startOfMonth(mesActual).getDay()
-  const diasRelleno = diaInicioMes === 0 ? 6 : diaInicioMes - 1
-
-  const getMensajesDelDia = (dia) => {
-    return mensajes.filter(mensaje => {
-      const fechaMensaje = parseISO(mensaje.fechaProgramada)
-      return isSameDay(fechaMensaje, dia)
-    }).sort((a, b) => parseISO(a.fechaProgramada) - parseISO(b.fechaProgramada))
-  }
+  const chips = [
+    { value: '', label: `Todos (${mensajes.length})` },
+    { value: 'PROGRAMADO', label: `Programados (${conteo('PROGRAMADO')})` },
+    { value: 'ENVIADO', label: `Enviados (${conteo('ENVIADO')})` },
+    { value: 'FALLIDO', label: `Fallidos (${conteo('FALLIDO')})` },
+  ]
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-sm mb-lg">
-        <h1 className="font-headline-md text-2xl text-primary">Mensajes</h1>
-        <div className="flex gap-sm">
-          <select
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            className="border border-outline-variant rounded-sm px-md py-sm bg-surface-container-lowest text-sm"
+      <Titulo>Mensajes</Titulo>
+
+      <div className="mb-4 grid grid-cols-2 rounded-full bg-primary-container p-1">
+        {[
+          { value: 'proximos', label: 'Próximos' },
+          { value: 'anteriores', label: 'Anteriores' },
+        ].map((v) => (
+          <button
+            key={v.value}
+            onClick={() => setVista(v.value)}
+            className={`h-10 rounded-full text-sm font-semibold transition-colors ${
+              vista === v.value ? 'bg-primary text-white' : 'text-primary'
+            }`}
           >
-            <option value="">Todos los estados</option>
-            {ESTADOS_MENSAJE.map((e) => (
-              <option key={e.value} value={e.value}>{e.label}</option>
-            ))}
-          </select>
-        </div>
+            {v.label}
+          </button>
+        ))}
       </div>
 
-      {error && (
-        <div className="bg-error-container text-on-error-container px-md py-sm rounded-sm mb-md text-sm">
-          {error}
-        </div>
-      )}
-
-      <div className="bg-surface-container-lowest rounded-lg border border-outline-variant/20 p-2 sm:p-4">
-        {/* Header del calendario */}
-        <div className="flex items-center justify-between mb-4">
+      <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1">
+        {chips.map((c) => (
           <button
-            onClick={handleMesAnterior}
-            className="p-2 hover:bg-surface-container rounded-sm transition-colors"
+            key={c.value}
+            onClick={() => setFiltro(c.value)}
+            className={`h-10 shrink-0 rounded-full px-4 text-sm font-semibold ${
+              filtro === c.value ? 'bg-primary text-white' : 'bg-primary-container text-primary'
+            }`}
           >
-            ←
+            {c.label}
           </button>
-          <div className="flex items-center gap-2">
-            <h2 className="font-headline-md text-base sm:text-lg text-primary">
-              {format(mesActual, 'MMMM yyyy', { locale: es }).toUpperCase()}
-            </h2>
-            <button
-              onClick={handleHoy}
-              className="text-xs sm:text-sm text-secondary hover:text-primary underline"
-            >
-              Hoy
-            </button>
-          </div>
-          <button
-            onClick={handleMesSiguiente}
-            className="p-2 hover:bg-surface-container rounded-sm transition-colors"
-          >
-            →
-          </button>
-        </div>
-
-        {/* Días de la semana */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((dia) => (
-            <div key={dia} className="text-center text-xs sm:text-sm font-medium text-secondary py-2">
-              {dia}
-            </div>
-          ))}
-        </div>
-
-        {/* Grid del calendario */}
-        <div className="grid grid-cols-7 gap-1">
-          {/* Días de relleno */}
-          {Array.from({ length: diasRelleno }).map((_, i) => (
-            <div key={`relleno-${i}`} className="min-h-16 sm:min-h-24 bg-surface-container rounded-sm"></div>
-          ))}
-          
-          {/* Días del mes */}
-          {diasDelMes.map((dia) => {
-            const mensajesDelDia = getMensajesDelDia(dia)
-            const esHoy = isToday(dia)
-            
-            return (
-              <div
-                key={dia.toISOString()}
-                onClick={() => setMensajeSeleccionado(dia)}
-                className={`min-h-16 sm:min-h-24 border border-outline-variant/10 rounded-sm p-1 sm:p-2 cursor-pointer transition-colors hover:border-primary/30 ${
-                  esHoy ? 'bg-primary-container/10' : 'bg-surface-container-low'
-                }`}
-              >
-                <div className={`text-xs sm:text-sm font-medium mb-1 ${esHoy ? 'text-primary' : 'text-on-surface'}`}>
-                  {format(dia, 'd')}
-                </div>
-                <div className="space-y-1">
-                  {mensajesDelDia.slice(0, 3).map((mensaje) => (
-                    <div
-                      key={mensaje.id}
-                      className={`text-xs p-1 rounded truncate ${getEstadoColor(mensaje.estado)}`}
-                    >
-                      {getTipoPlantilla(mensaje.idPlantilla)}
-                    </div>
-                  ))}
-                  {mensajesDelDia.length > 3 && (
-                    <div className="text-xs text-secondary">
-                      +{mensajesDelDia.length - 3} más
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        ))}
       </div>
 
-      {/* Vista detallada del día seleccionado */}
-      {mensajeSeleccionado && (
-        <div className="mt-6 bg-surface-container-lowest rounded-lg border border-outline-variant/20 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-headline-md text-lg text-primary">
-              {format(mensajeSeleccionado, 'EEEE d MMMM', { locale: es })}
-            </h3>
-            <button
-              onClick={() => setMensajeSeleccionado(null)}
-              className="text-sm text-secondary hover:text-primary underline"
-            >
-              Cerrar
-            </button>
-          </div>
-          
-          {loading ? (
-            <p className="text-secondary">Cargando...</p>
-          ) : (() => {
-            const mensajesDelDia = getMensajesDelDia(mensajeSeleccionado)
-            return mensajesDelDia.length === 0 ? (
-              <p className="text-secondary text-center py-8">No hay mensajes para este día</p>
-            ) : (
+      {error && <ErrorBanner>{error}</ErrorBanner>}
+
+      {loading ? (
+        <Aviso>Cargando...</Aviso>
+      ) : grupos.length === 0 ? (
+        <Aviso>No hay mensajes en esta vista.</Aviso>
+      ) : (
+        <div className="space-y-6">
+          {grupos.map(([fecha, lista]) => (
+            <section key={fecha}>
+              <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-secondary">
+                {isToday(parseISO(fecha)) && 'Hoy · '}
+                {format(parseISO(fecha), "EEEE d 'de' MMMM", { locale: es })}
+              </h2>
               <div className="space-y-3">
-                {mensajesDelDia.map((mensaje) => (
-                  <div
-                    key={mensaje.id}
-                    className={`p-4 rounded-lg ${getEstadoColor(mensaje.estado)}`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <div className="font-medium text-sm">
-                          {getTipoPlantilla(mensaje.idPlantilla)}
+                {lista.map((m) => {
+                  const estado = ESTADOS[m.estado] ?? ESTADOS.PROGRAMADO
+                  const plantilla = plantillaPorId.get(m.idPlantilla)
+                  return (
+                    <div key={m.id} className={`${CARD} relative overflow-hidden pl-5`}>
+                      <span className={`absolute inset-y-0 left-0 w-1 ${estado.acento}`} />
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="font-headline-md text-lg leading-tight">
+                            {clientaPorId.get(m.idClienta)?.nombre ?? `Clienta ${m.idClienta}`}
+                          </p>
+                          <p className="text-sm text-secondary">
+                            {plantilla ? TIPOS_PLANTILLA[plantilla.tipo] ?? plantilla.tipo : 'Plantilla desconocida'}
+                            {' · '}
+                            {format(parseISO(m.fechaProgramada), 'HH:mm')}
+                          </p>
                         </div>
-                        <div className="text-xs text-secondary mt-1">
-                          {getNombreClienta(mensaje.idClienta)}
-                          {mensaje.idCita && ` | Cita ID: ${mensaje.idCita}`}
-                        </div>
-                        <div className="text-xs text-secondary mt-1">
-                          Intentos: {mensaje.intentos || 0}
-                        </div>
+                        <Chip tono={estado.tono}>{estado.label}</Chip>
                       </div>
-                      <div className="flex gap-2">
-                        {puedeModificar && mensaje.estado === 'FALLIDO' && (
+
+                      <p className="mt-1 text-xs text-secondary">
+                        Intentos: {m.intentos || 0}
+                        {m.idCita && ` · Cita #${m.idCita}`}
+                      </p>
+
+                      {puedeModificar && (
+                        <div className="mt-2 flex gap-2">
+                          {m.estado === 'FALLIDO' && (
+                            <button
+                              onClick={() => handleReintentar(m)}
+                              className="h-10 rounded-full bg-primary-container px-4 text-sm font-semibold text-primary"
+                            >
+                              Reintentar
+                            </button>
+                          )}
                           <button
-                            onClick={() => handleReintentar(mensaje)}
-                            className="text-primary hover:underline text-sm"
-                          >
-                            Reintentar
-                          </button>
-                        )}
-                        {puedeModificar && (
-                          <button
-                            onClick={() => setMensajeAEliminar(mensaje)}
-                            className="text-error hover:underline text-sm"
+                            onClick={() => setMensajeAEliminar(m)}
+                            className="h-10 px-3 text-sm font-semibold text-error"
                           >
                             Eliminar
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
-            )
-          })()}
+            </section>
+          ))}
         </div>
       )}
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
+import BottomSheet from './BottomSheet'
 
 const ESTADOS_CITA = [
   { value: 'CONFIRMADA', label: 'Confirmada' },
@@ -7,7 +8,17 @@ const ESTADOS_CITA = [
   { value: 'CANCELADA', label: 'Cancelada' },
 ]
 
-const CitaFormModal = ({ cita, onClose, onSaved }) => {
+const INPUT =
+  'h-12 w-full rounded-xl border border-outline-variant bg-white px-3 text-base text-on-surface focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-container/60'
+
+const Campo = ({ label, children }) => (
+  <label className="flex flex-col gap-1.5">
+    <span className="text-[11px] font-semibold uppercase tracking-wider text-secondary">{label}</span>
+    {children}
+  </label>
+)
+
+const CitaFormModal = ({ cita, onClose, onSaved, onDelete }) => {
   const { request } = useAgendaApi()
   const esEdicion = Boolean(cita && cita.id)
 
@@ -20,7 +31,7 @@ const CitaFormModal = ({ cita, onClose, onSaved }) => {
     notas: cita?.notas || '',
     servicios: cita?.servicios || [],
   })
-  
+
   const [clientas, setClientas] = useState([])
   const [empleadas, setEmpleadas] = useState([])
   const [servicios, setServicios] = useState([])
@@ -28,27 +39,16 @@ const CitaFormModal = ({ cita, onClose, onSaved }) => {
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
 
-  // Cargar datos necesarios para los selects
   useEffect(() => {
-    Promise.all([
-      request('/Clientas'),
-      request('/Empleadas'),
-      request('/Servicios'),
-    ])
-      .then(([clientasRes, empleadasRes, serviciosRes]) => {
-        if (!clientasRes.ok || !empleadasRes.ok || !serviciosRes.ok) {
-          throw new Error('No se pudieron cargar los datos necesarios')
-        }
-        return Promise.all([
-          clientasRes.json(),
-          empleadasRes.json(),
-          serviciosRes.json(),
-        ])
+    Promise.all([request('/Clientas'), request('/Empleadas'), request('/Servicios')])
+      .then(([c, e, s]) => {
+        if (!c.ok || !e.ok || !s.ok) throw new Error('No se pudieron cargar los datos necesarios')
+        return Promise.all([c.json(), e.json(), s.json()])
       })
-      .then(([clientasData, empleadasData, serviciosData]) => {
-        setClientas(clientasData)
-        setEmpleadas(empleadasData)
-        setServicios(serviciosData)
+      .then(([c, e, s]) => {
+        setClientas(c)
+        setEmpleadas(e)
+        setServicios(s)
       })
       .catch((err) => setError(err.message))
       .finally(() => setCargandoDatos(false))
@@ -62,44 +62,42 @@ const CitaFormModal = ({ cita, onClose, onSaved }) => {
   const agregarServicio = () => {
     setForm((prev) => ({
       ...prev,
-      servicios: [...prev.servicios, { idServicio: '', precioCobrado: '', id: undefined }],
+      servicios: [...prev.servicios, { idServicio: '', precioCobrado: '' }],
     }))
   }
 
   const actualizarServicio = (index, campo, valor) => {
     setForm((prev) => {
-      const nuevosServicios = [...prev.servicios]
-      nuevosServicios[index] = { ...nuevosServicios[index], [campo]: valor }
-      return { ...prev, servicios: nuevosServicios }
+      const nuevos = [...prev.servicios]
+      nuevos[index] = { ...nuevos[index], [campo]: valor }
+      if (campo === 'idServicio') {
+        const s = servicios.find((x) => x.id === Number(valor))
+        if (s) nuevos[index].precioCobrado = s.precio
+      }
+      return { ...prev, servicios: nuevos }
     })
   }
 
   const eliminarServicio = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      servicios: prev.servicios.filter((_, i) => i !== index),
-    }))
+    setForm((prev) => ({ ...prev, servicios: prev.servicios.filter((_, i) => i !== index) }))
   }
+
+  const total = form.servicios.reduce((t, s) => t + (Number(s.precioCobrado) || 0), 0)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setGuardando(true)
     setError('')
 
-    // Validar campos requeridos
     if (!form.idClienta || !form.idEmpleada) {
       setError('Debe seleccionar clienta y empleada')
-      setGuardando(false)
       return
     }
-
-    // Validar que haya al menos un servicio
-    if (form.servicios.length === 0 || form.servicios.every(s => !s.idServicio)) {
+    if (form.servicios.length === 0 || form.servicios.every((s) => !s.idServicio)) {
       setError('Debe agregar al menos un servicio')
-      setGuardando(false)
       return
     }
 
+    setGuardando(true)
     const body = {
       idClienta: Number(form.idClienta),
       idEmpleada: Number(form.idEmpleada),
@@ -108,26 +106,23 @@ const CitaFormModal = ({ cita, onClose, onSaved }) => {
       estado: form.estado,
       notas: form.notas,
       servicios: form.servicios
-        .filter(s => s.idServicio)
+        .filter((s) => s.idServicio)
         .map(({ idServicio, precioCobrado }) => ({
           idServicio: Number(idServicio),
           precioCobrado: Number(precioCobrado) || 0,
         }))
-        .filter(s => !isNaN(s.idServicio) && s.idServicio > 0),
+        .filter((s) => !isNaN(s.idServicio) && s.idServicio > 0),
     }
 
     try {
-      const path = esEdicion && cita.id ? `/Citas/id/${cita.id}` : '/Citas'
-      const res = await request(path, {
+      const res = await request(esEdicion ? `/Citas/id/${cita.id}` : '/Citas', {
         method: esEdicion ? 'PUT' : 'POST',
         body: JSON.stringify(body),
       })
-
       if (!res.ok) {
         const errData = await res.json().catch(() => null)
         throw new Error(errData?.message || 'No se pudo guardar la cita')
       }
-
       onSaved()
     } catch (err) {
       setError(err.message)
@@ -136,183 +131,135 @@ const CitaFormModal = ({ cita, onClose, onSaved }) => {
     }
   }
 
-  const getServicioPrecio = (servicioId) => {
-    const servicio = servicios.find(s => s.id === Number(servicioId))
-    return servicio ? servicio.precio : 0
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
-      <form
-        onSubmit={handleSubmit}
-        style={{ width: '95vw', maxWidth: '600px', minWidth: '280px' }}
-        className="bg-surface-container-lowest rounded-lg shadow-2xl p-4 sm:p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto my-auto shrink-0 box-border"
-      >
-        <h2 className="font-headline-md text-xl font-bold text-primary">
-          {esEdicion ? 'Editar cita' : 'Nueva cita'}
-        </h2>
-
-        {cargandoDatos ? (
-          <p className="text-secondary">Cargando datos...</p>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="flex flex-col gap-1 text-sm font-medium">
-                Clienta
-                <select
-                  name="idClienta"
-                  value={form.idClienta}
-                  onChange={handleChange}
-                  required
-                  className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest"
-                >
-                  <option value="">Seleccionar clienta...</option>
-                  {clientas.map((c) => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="flex flex-col gap-1 text-sm font-medium">
-                Empleada
-                <select
-                  name="idEmpleada"
-                  value={form.idEmpleada}
-                  onChange={handleChange}
-                  required
-                  className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest"
-                >
-                  <option value="">Seleccionar empleada...</option>
-                  {empleadas.map((e) => (
-                    <option key={e.id} value={e.id}>{e.nombre}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <label className="flex flex-col gap-1 text-sm font-medium">
-                Inicio
-                <input
-                  type="datetime-local"
-                  name="inicio"
-                  value={form.inicio}
-                  onChange={handleChange}
-                  required
-                  className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </label>
-
-              <label className="flex flex-col gap-1 text-sm font-medium">
-                Fin
-                <input
-                  type="datetime-local"
-                  name="fin"
-                  value={form.fin}
-                  onChange={handleChange}
-                  required
-                  className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </label>
-            </div>
-
-            <label className="flex flex-col gap-1 text-sm font-medium">
-              Estado
-              <select
-                name="estado"
-                value={form.estado}
-                onChange={handleChange}
-                className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest"
-              >
-                {ESTADOS_CITA.map((e) => (
-                  <option key={e.value} value={e.value}>{e.label}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1 text-sm font-medium">
-              Notas
-              <textarea
-                name="notas"
-                value={form.notas}
-                onChange={handleChange}
-                rows={2}
-                className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-              />
-            </label>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Servicios</span>
-                <button
-                  type="button"
-                  onClick={agregarServicio}
-                  className="text-xs bg-primary text-on-primary px-2 py-1 rounded-sm hover:opacity-90 transition-opacity"
-                >
-                  + Agregar servicio
-                </button>
+    <BottomSheet title={esEdicion ? 'Editar cita' : 'Nueva cita'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
+          {cargandoDatos ? (
+            <p className="py-6 text-center text-secondary">Cargando datos...</p>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Campo label="Clienta">
+                  <select name="idClienta" value={form.idClienta} onChange={handleChange} required className={INPUT}>
+                    <option value="">Seleccionar...</option>
+                    {clientas.map((c) => (
+                      <option key={c.id} value={c.id}>{c.nombre}</option>
+                    ))}
+                  </select>
+                </Campo>
+                <Campo label="Empleada">
+                  <select name="idEmpleada" value={form.idEmpleada} onChange={handleChange} required className={INPUT}>
+                    <option value="">Seleccionar...</option>
+                    {empleadas.map((e) => (
+                      <option key={e.id} value={e.id}>{e.nombre}</option>
+                    ))}
+                  </select>
+                </Campo>
               </div>
-              
-              {form.servicios.length === 0 ? (
-                <p className="text-sm text-secondary">No hay servicios agregados</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {form.servicios.map((servicio, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                      <select
-                        value={servicio.idServicio}
-                        onChange={(e) => actualizarServicio(index, 'idServicio', e.target.value)}
-                        className="flex-1 border border-outline-variant rounded-sm p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest"
-                      >
-                        <option value="">Seleccionar servicio...</option>
-                        {servicios.map((s) => (
-                          <option key={s.id} value={s.id}>{s.nombre} (${s.precio})</option>
-                        ))}
-                      </select>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Campo label="Inicio">
+                  <input type="datetime-local" name="inicio" value={form.inicio} onChange={handleChange} required className={INPUT} />
+                </Campo>
+                <Campo label="Fin">
+                  <input type="datetime-local" name="fin" value={form.fin} onChange={handleChange} required className={INPUT} />
+                </Campo>
+              </div>
+
+              <Campo label="Estado">
+                <select name="estado" value={form.estado} onChange={handleChange} className={INPUT}>
+                  {ESTADOS_CITA.map((e) => (
+                    <option key={e.value} value={e.value}>{e.label}</option>
+                  ))}
+                </select>
+              </Campo>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-secondary">Servicios</span>
+                  <button
+                    type="button"
+                    onClick={agregarServicio}
+                    className="h-9 rounded-full bg-primary-container px-4 text-xs font-bold text-primary"
+                  >
+                    + Agregar
+                  </button>
+                </div>
+
+                {form.servicios.length === 0 && (
+                  <p className="text-sm text-secondary">No hay servicios agregados</p>
+                )}
+
+                {form.servicios.map((s, index) => (
+                  <div key={index} className="space-y-2 rounded-xl border border-outline-variant bg-surface-container-low p-3">
+                    <select
+                      value={s.idServicio}
+                      onChange={(e) => actualizarServicio(index, 'idServicio', e.target.value)}
+                      className={INPUT}
+                    >
+                      <option value="">Seleccionar servicio...</option>
+                      {servicios.map((x) => (
+                        <option key={x.id} value={x.id}>{x.nombre} (${x.precio})</option>
+                      ))}
+                    </select>
+                    <div className="flex items-center gap-2">
                       <input
                         type="number"
                         placeholder="Precio"
-                        value={servicio.precioCobrado}
+                        value={s.precioCobrado}
                         onChange={(e) => actualizarServicio(index, 'precioCobrado', e.target.value)}
                         step="0.01"
                         min="0"
-                        className="w-24 border border-outline-variant rounded-sm p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        className={INPUT}
                       />
                       <button
                         type="button"
                         onClick={() => eliminarServicio(index)}
-                        className="text-error hover:text-error-container text-xs"
+                        className="h-12 shrink-0 px-3 text-sm font-semibold text-error"
                       >
-                        Eliminar
+                        Quitar
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
+                  </div>
+                ))}
 
-        {error && <p className="text-error text-sm font-medium">{error}</p>}
+                {form.servicios.length > 0 && (
+                  <p className="text-right text-sm font-semibold text-primary">Total: ${total.toFixed(2)}</p>
+                )}
+              </div>
 
-        <div className="flex justify-end gap-3 mt-2 pt-2 border-t border-outline-variant/30">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm text-secondary hover:text-primary transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
+              <Campo label="Notas">
+                <textarea
+                  name="notas"
+                  value={form.notas}
+                  onChange={handleChange}
+                  rows={2}
+                  className="w-full resize-none rounded-xl border border-outline-variant bg-white p-3 text-base focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-container/60"
+                />
+              </Campo>
+            </>
+          )}
+
+          {error && <p className="text-sm font-medium text-error">{error}</p>}
+        </div>
+
+        <div className="space-y-1 border-t border-outline-variant px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
           <button
             type="submit"
             disabled={guardando || cargandoDatos}
-            className="bg-primary text-on-primary px-5 py-2 rounded-md text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer"
+            className="h-12 w-full rounded-xl bg-primary text-base font-semibold text-on-primary active:bg-[#663a40] disabled:opacity-50"
           >
-            {guardando ? 'Guardando...' : 'Guardar'}
+            {guardando ? 'Guardando...' : 'Guardar cita'}
           </button>
+          {onDelete && (
+            <button type="button" onClick={onDelete} className="h-11 w-full text-sm font-semibold text-error">
+              Eliminar cita
+            </button>
+          )}
         </div>
       </form>
-    </div>
+    </BottomSheet>
   )
 }
 

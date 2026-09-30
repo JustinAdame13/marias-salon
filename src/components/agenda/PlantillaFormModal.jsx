@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
+import FormSheet from './FormSheet'
+import { Campo } from './ui'
+import { INPUT } from './estilos'
 
 const TIPOS_PLANTILLA = [
   { value: 'RECORDATORIO', label: 'Recordatorio' },
@@ -7,61 +10,33 @@ const TIPOS_PLANTILLA = [
   { value: 'CUMPLE', label: 'Cumpleaños' },
 ]
 
-const PlantillaFormModal = ({ plantilla, onClose, onSaved }) => {
+const PlantillaFormModal = ({ plantilla, onClose, onSaved, onDelete }) => {
   const { request } = useAgendaApi()
   const esEdicion = Boolean(plantilla)
 
   const [form, setForm] = useState({
     tipo: plantilla?.tipo || TIPOS_PLANTILLA[0].value,
     nombreMeta: plantilla?.nombreMeta || '',
-    diasOffset: plantilla?.diasOffset || '',
+    diasOffset: plantilla?.diasOffset ?? '',
     ordenParametros: plantilla?.ordenParametros || [],
     headerImageUrl: plantilla?.headerImageUrl || '',
   })
   const [parametroInput, setParametroInput] = useState('')
+  const [imagenRota, setImagenRota] = useState(false)
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
-  const [imagePreview, setImagePreview] = useState(plantilla?.headerImageUrl || '')
-
-  useEffect(() => {
-    if (plantilla) {
-      setForm({
-        tipo: plantilla.tipo || TIPOS_PLANTILLA[0].value,
-        nombreMeta: plantilla.nombreMeta || '',
-        diasOffset: plantilla.diasOffset || '',
-        ordenParametros: plantilla.ordenParametros || [],
-        headerImageUrl: plantilla.headerImageUrl || '',
-      })
-      setImagePreview(plantilla.headerImageUrl || '')
-    } else {
-      setForm({
-        tipo: TIPOS_PLANTILLA[0].value,
-        nombreMeta: '',
-        diasOffset: '',
-        ordenParametros: [],
-        headerImageUrl: '',
-      })
-      setImagePreview('')
-    }
-  }, [plantilla])
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
-    
-    if (name === 'headerImageUrl') {
-      setImagePreview(value || '')
-    }
+    if (name === 'headerImageUrl') setImagenRota(false)
   }
 
   const agregarParametro = () => {
-    if (parametroInput.trim()) {
-      setForm((prev) => ({
-        ...prev,
-        ordenParametros: [...prev.ordenParametros, parametroInput.trim()],
-      }))
-      setParametroInput('')
-    }
+    const valor = parametroInput.trim()
+    if (!valor) return
+    setForm((prev) => ({ ...prev, ordenParametros: [...prev.ordenParametros, valor] }))
+    setParametroInput('')
   }
 
   const eliminarParametro = (index) => {
@@ -76,23 +51,21 @@ const PlantillaFormModal = ({ plantilla, onClose, onSaved }) => {
     setGuardando(true)
     setError('')
 
+    // diasOffset = 0 es un valor válido, por eso comparamos contra '' y no contra "falsy"
     const body = {
       ...form,
-      diasOffset: form.diasOffset ? Number(form.diasOffset) : null,
+      diasOffset: form.diasOffset === '' ? null : Number(form.diasOffset),
     }
 
     try {
-      const path = esEdicion ? `/Plantillas/id/${plantilla.id}` : '/Plantillas'
-      const res = await request(path, {
+      const res = await request(esEdicion ? `/Plantillas/id/${plantilla.id}` : '/Plantillas', {
         method: esEdicion ? 'PUT' : 'POST',
         body: JSON.stringify(body),
       })
-
       if (!res.ok) {
         const errData = await res.json().catch(() => null)
         throw new Error(errData?.message || 'No se pudo guardar la plantilla')
       }
-
       onSaved()
     } catch (err) {
       setError(err.message)
@@ -102,137 +75,94 @@ const PlantillaFormModal = ({ plantilla, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
-      <form
-        onSubmit={handleSubmit}
-        style={{ width: '90vw', maxWidth: '480px', minWidth: '300px' }}
-        className="bg-surface-container-lowest rounded-lg shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto my-auto shrink-0 box-border"
-      >
-        <h2 className="font-headline-md text-xl font-bold text-primary">
-          {esEdicion ? 'Editar plantilla' : 'Nueva plantilla'}
-        </h2>
+    <FormSheet
+      title={esEdicion ? 'Editar plantilla' : 'Nueva plantilla'}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      guardando={guardando}
+      error={error}
+      onDelete={esEdicion ? onDelete : undefined}
+      deleteLabel="Eliminar plantilla"
+    >
+      <Campo label="Tipo">
+        <select name="tipo" value={form.tipo} onChange={handleChange} className={INPUT}>
+          {TIPOS_PLANTILLA.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
+        </select>
+      </Campo>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Tipo
-          <select
-            name="tipo"
-            value={form.tipo}
-            onChange={handleChange}
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary bg-surface-container-lowest"
-          >
-            {TIPOS_PLANTILLA.map((t) => (
-              <option key={t.value} value={t.value}>{t.label}</option>
-            ))}
-          </select>
-        </label>
+      <Campo label="Nombre de la plantilla">
+        <input name="nombreMeta" value={form.nombreMeta} onChange={handleChange} required className={INPUT} />
+      </Campo>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Nombre de la plantilla
-          <input
-            name="nombreMeta"
-            value={form.nombreMeta}
-            onChange={handleChange}
-            required
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+      <Campo label="Días de offset (opcional)">
+        <input type="number" name="diasOffset" value={form.diasOffset} onChange={handleChange} className={INPUT} />
+        <span className="text-xs normal-case tracking-normal text-secondary">
+          Días antes/después para enviar el mensaje
+        </span>
+      </Campo>
+
+      <Campo label="URL de imagen del header">
+        <input
+          type="url"
+          name="headerImageUrl"
+          value={form.headerImageUrl}
+          onChange={handleChange}
+          placeholder="https://ejemplo.com/imagen.jpg"
+          className={INPUT}
+        />
+        <span className="text-xs normal-case tracking-normal text-secondary">
+          URL pública HTTPS de la imagen para el header de WhatsApp
+        </span>
+      </Campo>
+
+      {form.headerImageUrl && !imagenRota && (
+        <div className="h-32 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low">
+          <img
+            src={form.headerImageUrl}
+            alt="Vista previa del header"
+            className="h-full w-full object-contain"
+            onError={() => setImagenRota(true)}
           />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Días de offset (opcional)
-          <input
-            type="number"
-            name="diasOffset"
-            value={form.diasOffset}
-            onChange={handleChange}
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          <span className="text-xs text-secondary">Días antes/después para enviar el mensaje</span>
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          URL de imagen del header
-          <input
-            type="url"
-            name="headerImageUrl"
-            value={form.headerImageUrl}
-            onChange={handleChange}
-            placeholder="https://ejemplo.com/imagen.jpg"
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          <span className="text-xs text-secondary">URL pública HTTPS de la imagen para el header de WhatsApp</span>
-        </label>
-
-        {imagePreview && (
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Vista previa</span>
-            <div className="relative w-full h-32 bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/20">
-              <img
-                src={imagePreview}
-                alt="Vista previa del header"
-                className="w-full h-full object-contain"
-                onError={() => setImagePreview('')}
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Orden de parámetros</span>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={parametroInput}
-              onChange={(e) => setParametroInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), agregarParametro())}
-              placeholder="Agregar parámetro..."
-              className="flex-1 border border-outline-variant rounded-sm p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <button
-              type="button"
-              onClick={agregarParametro}
-              className="bg-primary text-on-primary px-3 py-2 rounded-sm text-sm hover:opacity-90 transition-opacity"
-            >
-              +
-            </button>
-          </div>
-          {form.ordenParametros.length > 0 && (
-            <div className="flex flex-col gap-1 mt-2">
-              {form.ordenParametros.map((param, index) => (
-                <div key={index} className="flex items-center justify-between bg-surface-container-low px-2 py-1 rounded-sm text-sm">
-                  <span>{index + 1}. {param}</span>
-                  <button
-                    type="button"
-                    onClick={() => eliminarParametro(index)}
-                    className="text-error hover:text-error-container text-xs"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
+      )}
 
-        {error && <p className="text-error text-sm font-medium">{error}</p>}
-
-        <div className="flex justify-end gap-3 mt-2 pt-2 border-t border-outline-variant/30">
+      <div className="space-y-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-secondary">Orden de parámetros</span>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={parametroInput}
+            onChange={(e) => setParametroInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                agregarParametro()
+              }
+            }}
+            placeholder="Agregar parámetro..."
+            className={INPUT}
+          />
           <button
             type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm text-secondary hover:text-primary transition-colors cursor-pointer"
+            onClick={agregarParametro}
+            aria-label="Agregar parámetro"
+            className="h-12 w-12 shrink-0 rounded-xl bg-primary text-xl font-semibold text-on-primary"
           >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={guardando}
-            className="bg-primary text-on-primary px-5 py-2 rounded-md text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer"
-          >
-            {guardando ? 'Guardando...' : 'Guardar'}
+            +
           </button>
         </div>
-      </form>
-    </div>
+        {form.ordenParametros.map((param, index) => (
+          <div key={index} className="flex items-center justify-between rounded-xl bg-surface-container-low px-3 py-2 text-sm">
+            <span>{index + 1}. {param}</span>
+            <button type="button" onClick={() => eliminarParametro(index)} className="h-9 px-2 text-xs font-semibold text-error">
+              Quitar
+            </button>
+          </div>
+        ))}
+      </div>
+    </FormSheet>
   )
 }
 

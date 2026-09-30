@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import PlantillaFormModal from '../../components/agenda/PlantillaFormModal'
 import ConfirmDialog from '../../components/agenda/ConfirmDialog'
+import { Aviso, Chip, ErrorBanner, Fab, SearchInput, Titulo } from '../../components/agenda/ui'
+import { CARD, normalizar } from '../../components/agenda/estilos'
+
+const TIPOS = { RECORDATORIO: 'Recordatorio', SEGUIMIENTO: 'Seguimiento', CUMPLE: 'Cumpleaños' }
 
 const Plantillas = () => {
   const { request } = useAgendaApi()
@@ -17,52 +21,43 @@ const Plantillas = () => {
   const [plantillaEditando, setPlantillaEditando] = useState(null)
   const [plantillaAEliminar, setPlantillaAEliminar] = useState(null)
 
-  const cargarPlantillas = useCallback(async () => {
+  const cargar = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
       const res = await request('/Plantillas')
       if (!res.ok) throw new Error('No se pudieron cargar las plantillas')
-      const todasLasPlantillas = await res.json()
-      
-      // Filtrar localmente si hay búsqueda
-      if (busqueda.trim()) {
-        const filtradas = todasLasPlantillas.filter(p =>
-          p.nombreMeta.toLowerCase().includes(busqueda.toLowerCase())
-        )
-        setPlantillas(filtradas)
-      } else {
-        setPlantillas(todasLasPlantillas)
-      }
+      setPlantillas(await res.json())
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [request, busqueda])
+  }, [request])
 
   useEffect(() => {
-    cargarPlantillas()
-  }, [])
+    cargar()
+  }, [cargar])
 
-  const handleBusqueda = (e) => {
-    e.preventDefault()
-    cargarPlantillas()
-  }
+  const visibles = useMemo(() => {
+    const q = normalizar(busqueda.trim())
+    return plantillas.filter((p) => !q || normalizar(p.nombreMeta).includes(q))
+  }, [plantillas, busqueda])
 
   const abrirCrear = () => {
     setPlantillaEditando(null)
     setModalOpen(true)
   }
 
-  const abrirEditar = (plantilla) => {
-    setPlantillaEditando(plantilla)
+  const abrirEditar = (p) => {
+    if (!puedeModificar) return
+    setPlantillaEditando(p)
     setModalOpen(true)
   }
 
-  const handleGuardado = () => {
+  const pedirEliminar = () => {
     setModalOpen(false)
-    cargarPlantillas(busqueda)
+    setPlantillaAEliminar(plantillaEditando)
   }
 
   const confirmarEliminar = async () => {
@@ -70,145 +65,77 @@ const Plantillas = () => {
       const res = await request(`/Plantillas/id/${plantillaAEliminar.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('No se pudo eliminar la plantilla')
       setPlantillaAEliminar(null)
-      cargarPlantillas(busqueda)
+      cargar()
     } catch (err) {
       setError(err.message)
       setPlantillaAEliminar(null)
     }
   }
 
-  const getTipoLabel = (tipo) => {
-    const tipos = {
-      'RECORDATORIO': 'Recordatorio',
-      'SEGUIMIENTO': 'Seguimiento',
-      'CUMPLE': 'Cumpleaños'
-    }
-    return tipos[tipo] || tipo
-  }
-
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-sm mb-lg">
-        <h1 className="font-headline-md text-2xl text-primary">Plantillas</h1>
-        {puedeModificar && (
-          <button
-            onClick={abrirCrear}
-            className="bg-primary text-on-primary px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity"
-          >
-            + Nueva plantilla
-          </button>
-        )}
-      </div>
-
-      <form onSubmit={handleBusqueda} className="flex gap-sm mb-lg">
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="flex-1 border border-outline-variant rounded-sm px-md py-sm"
-        />
-        <button
-          type="submit"
-          className="border border-primary text-primary px-md py-sm rounded-sm hover:bg-primary hover:text-on-primary transition-all"
-        >
-          Buscar
-        </button>
-        {busqueda && (
-          <button
-            type="button"
-            onClick={() => { setBusqueda(''); cargarPlantillas() }}
-            className="text-sm text-secondary hover:text-primary underline"
-          >
-            Limpiar
-          </button>
-        )}
-      </form>
-
-      {error && (
-        <div className="bg-error-container text-on-error-container px-md py-sm rounded-sm mb-md text-sm">
-          {error}
-        </div>
-      )}
+      <Titulo>Plantillas</Titulo>
+      <SearchInput value={busqueda} onChange={setBusqueda} placeholder="Buscar por nombre..." />
+      {error && <ErrorBanner>{error}</ErrorBanner>}
 
       {loading ? (
-        <p className="text-secondary">Cargando...</p>
-      ) : plantillas.length === 0 ? (
-        <p className="text-secondary">No se encontraron plantillas.</p>
+        <Aviso>Cargando...</Aviso>
+      ) : visibles.length === 0 ? (
+        <Aviso>No se encontraron plantillas.</Aviso>
       ) : (
-        <div className="overflow-x-auto bg-surface-container-lowest rounded-sm border border-outline-variant/20">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-outline-variant/20 text-left">
-                <th className="px-md py-sm font-label-md text-secondary">Nombre</th>
-                <th className="px-md py-sm font-label-md text-secondary">Tipo</th>
-                <th className="px-md py-sm font-label-md text-secondary">Días Offset</th>
-                <th className="px-md py-sm font-label-md text-secondary">Imagen Header</th>
-                <th className="px-md py-sm font-label-md text-secondary">Servicios</th>
-                {puedeModificar && (
-                  <th className="px-md py-sm font-label-md text-secondary text-right">Acciones</th>
+        <div className="grid gap-3 md:grid-cols-2">
+          {visibles.map((p) => (
+            <div
+              key={p.id}
+              role={puedeModificar ? 'button' : undefined}
+              tabIndex={puedeModificar ? 0 : undefined}
+              onClick={() => abrirEditar(p)}
+              onKeyDown={(e) => e.key === 'Enter' && abrirEditar(p)}
+              className={`${CARD} flex items-center gap-3 ${puedeModificar ? 'cursor-pointer' : ''}`}
+            >
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low">
+                {p.headerImageUrl && (
+                  <img
+                    src={p.headerImageUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none'
+                    }}
+                  />
                 )}
-              </tr>
-            </thead>
-            <tbody>
-              {plantillas.map((p) => (
-                <tr key={p.id} className="border-b border-outline-variant/10 last:border-0">
-                  <td className="px-md py-sm">{p.nombreMeta}</td>
-                  <td className="px-md py-sm capitalize">{getTipoLabel(p.tipo)}</td>
-                  <td className="px-md py-sm">{p.diasOffset !== null ? p.diasOffset : '—'}</td>
-                  <td className="px-md py-sm">
-                    {p.headerImageUrl ? (
-                      <div className="relative w-12 h-12 bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/20">
-                        <img
-                          src={p.headerImageUrl}
-                          alt="Header"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none'
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-secondary text-xs">Sin imagen</span>
-                    )}
-                  </td>
-                  <td className="px-md py-sm">
-                    {p.idsServicios && p.idsServicios.length > 0 ? (
-                      <span className="text-xs bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full">
-                        {p.idsServicios.length} servicio{p.idsServicios.length > 1 ? 's' : ''}
-                      </span>
-                    ) : (
-                      <span className="text-secondary text-xs">Sin servicios</span>
-                    )}
-                  </td>
-                  {puedeModificar && (
-                    <td className="px-md py-sm text-right">
-                      <button
-                        onClick={() => abrirEditar(p)}
-                        className="text-primary hover:underline text-sm mr-md"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => setPlantillaAEliminar(p)}
-                        className="text-error hover:underline text-sm"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">{p.nombreMeta}</p>
+                <p className="text-xs text-secondary">
+                  {p.diasOffset !== null && p.diasOffset !== undefined
+                    ? `Offset: ${p.diasOffset} día${Math.abs(p.diasOffset) === 1 ? '' : 's'}`
+                    : 'Sin offset'}
+                  {' · '}
+                  {p.idsServicios?.length
+                    ? `${p.idsServicios.length} servicio${p.idsServicios.length > 1 ? 's' : ''}`
+                    : 'Sin servicios'}
+                </p>
+                <div className="mt-1.5">
+                  <Chip>{TIPOS[p.tipo] ?? p.tipo}</Chip>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
+
+      {puedeModificar && <Fab onClick={abrirCrear}>Nueva plantilla</Fab>}
 
       {modalOpen && (
         <PlantillaFormModal
           plantilla={plantillaEditando}
           onClose={() => setModalOpen(false)}
-          onSaved={handleGuardado}
+          onSaved={() => {
+            setModalOpen(false)
+            cargar()
+          }}
+          onDelete={pedirEliminar}
         />
       )}
 

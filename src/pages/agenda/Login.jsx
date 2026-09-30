@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { fadeUp } from '../../animations/variants'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import { despertarServidor } from '../../lib/api'
+import { INPUT } from '../../components/agenda/estilos'
 
 const AgendaLogin = () => {
   const [username, setUsername] = useState('')
@@ -23,74 +24,67 @@ const AgendaLogin = () => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     const ok = await login(username, password)
-
     setLoading(false)
-
-    if (ok) {
-      navigate('/agenda')
-    } else {
-      setError('Usuario o contraseña incorrectos')
-    }
+    if (ok) navigate('/agenda')
+    else setError('Usuario o contraseña incorrectos')
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 box-border">
-      <motion.form
+    <div className="agenda-theme flex min-h-screen w-full items-center justify-center bg-background p-4">
+      <motion.div
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        onSubmit={handleSubmit}
-        style={{ width: '90vw', maxWidth: '420px', minWidth: '280px' }}
-        className="bg-surface-container-lowest rounded-lg shadow-xl p-8 flex flex-col gap-4 my-auto shrink-0"
+        className="w-full max-w-[24rem]"
       >
-        {despertando && (
-          <p className="text-sm text-secondary text-center bg-surface-container-low rounded-sm px-3 py-2">
-            Despertando el servidor, esto puede tardar unos segundos...
-          </p>
-        )}
-
-        <h1 className="font-headline-md text-2xl text-primary text-center mb-2">
-          Maria's Beauty Salon
-        </h1>
-
-        <p className="text-sm text-secondary text-center mb-2">
-          Acceso al panel de citas
-        </p>
-
-        <input
-          type="text"
-          placeholder="Usuario"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border border-outline-variant rounded-sm px-md py-sm"
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border border-outline-variant rounded-sm px-md py-sm"
-          required
-        />
-
-        {error && (
-          <p className="text-error text-sm text-center">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading || despertando}
-          className="bg-primary text-on-primary py-sm rounded-sm font-label-md hover:opacity-90 disabled:opacity-50"
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col gap-4 rounded-3xl border border-outline-variant bg-white p-6 sm:p-8 shadow-xl"
         >
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-      </motion.form>
+          {despertando && (
+            <p className="rounded-xl bg-surface-container-low px-3 py-2 text-center text-sm text-secondary">
+              Despertando el servidor, esto puede tardar unos segundos...
+            </p>
+          )}
+
+          <div className="text-center">
+            <h1 className="font-headline-md text-3xl text-primary">Maria's</h1>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
+              Agenda
+            </p>
+          </div>
+
+          <input
+            type="text"
+            placeholder="Usuario"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className={INPUT}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={INPUT}
+            required
+          />
+
+          {error && <p className="text-center text-sm text-error">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading || despertando}
+            className="h-12 rounded-xl bg-primary font-semibold text-on-primary active:bg-[#663a40] disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? 'Entrando...' : 'Entrar'}
+          </button>
+        </form>
+      </motion.div>
     </div>
   )
 }

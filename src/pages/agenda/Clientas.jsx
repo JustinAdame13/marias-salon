@@ -1,7 +1,12 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { format, parseISO } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
 import ClientaFormModal from '../../components/agenda/ClientaFormModal'
 import ConfirmDialog from '../../components/agenda/ConfirmDialog'
+import Icon from '../../components/agenda/Icon'
+import { Avatar, Aviso, Chip, ErrorBanner, Fab, SearchInput, Titulo } from '../../components/agenda/ui'
+import { CARD, normalizar } from '../../components/agenda/estilos'
 
 const Clientas = () => {
   const { request } = useAgendaApi()
@@ -13,14 +18,11 @@ const Clientas = () => {
   const [clientaEditando, setClientaEditando] = useState(null)
   const [clientaAEliminar, setClientaAEliminar] = useState(null)
 
-  const cargarClientas = useCallback(async (nombre = '') => {
+  const cargar = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const path = nombre.trim()
-        ? `/Clientas/nombre/${encodeURIComponent(nombre.trim())}`
-        : '/Clientas'
-      const res = await request(path)
+      const res = await request('/Clientas')
       if (!res.ok) throw new Error('No se pudieron cargar las clientas')
       setClientas(await res.json())
     } catch (err) {
@@ -31,27 +33,30 @@ const Clientas = () => {
   }, [request])
 
   useEffect(() => {
-    cargarClientas()
-  }, [cargarClientas])
+    cargar()
+  }, [cargar])
 
-  const handleBusqueda = (e) => {
-    e.preventDefault()
-    cargarClientas(busqueda)
-  }
+  // La búsqueda es local: instantánea y sin pedir nada al servidor
+  const visibles = useMemo(() => {
+    const q = normalizar(busqueda.trim())
+    return clientas
+      .filter((c) => !q || normalizar(c.nombre).includes(q) || c.telefono?.includes(q))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+  }, [clientas, busqueda])
 
   const abrirCrear = () => {
     setClientaEditando(null)
     setModalOpen(true)
   }
 
-  const abrirEditar = (clienta) => {
-    setClientaEditando(clienta)
+  const abrirEditar = (c) => {
+    setClientaEditando(c)
     setModalOpen(true)
   }
 
-  const handleGuardado = () => {
+  const pedirEliminar = () => {
     setModalOpen(false)
-    cargarClientas(busqueda)
+    setClientaAEliminar(clientaEditando)
   }
 
   const confirmarEliminar = async () => {
@@ -59,118 +64,86 @@ const Clientas = () => {
       const res = await request(`/Clientas/id/${clientaAEliminar.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('No se pudo eliminar la clienta')
       setClientaAEliminar(null)
-      cargarClientas(busqueda)
+      cargar()
     } catch (err) {
       setError(err.message)
       setClientaAEliminar(null)
     }
   }
 
+  const detener = (e) => e.stopPropagation()
+
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-sm mb-lg">
-        <h1 className="font-headline-md text-2xl text-primary">Clientas</h1>
-        <button
-          onClick={abrirCrear}
-          className="bg-primary text-on-primary px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity"
-        >
-          + Nueva clienta
-        </button>
-      </div>
-
-      <form onSubmit={handleBusqueda} className="flex gap-sm mb-lg">
-        <input
-          type="text"
-          placeholder="Buscar por nombre..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="flex-1 border border-outline-variant rounded-sm px-md py-sm"
-        />
-        <button
-          type="submit"
-          className="border border-primary text-primary px-md py-sm rounded-sm hover:bg-primary hover:text-on-primary transition-all"
-        >
-          Buscar
-        </button>
-        {busqueda && (
-          <button
-            type="button"
-            onClick={() => { setBusqueda(''); cargarClientas('') }}
-            className="text-sm text-secondary hover:text-primary underline"
-          >
-            Limpiar
-          </button>
-        )}
-      </form>
-
-      {error && (
-        <div className="bg-error-container text-on-error-container px-md py-sm rounded-sm mb-md text-sm">
-          {error}
-        </div>
-      )}
+      <Titulo>Clientas</Titulo>
+      <SearchInput value={busqueda} onChange={setBusqueda} placeholder="Buscar por nombre o teléfono..." />
+      {error && <ErrorBanner>{error}</ErrorBanner>}
 
       {loading ? (
-        <p className="text-secondary">Cargando...</p>
-      ) : clientas.length === 0 ? (
-        <p className="text-secondary">No se encontraron clientas.</p>
+        <Aviso>Cargando...</Aviso>
+      ) : visibles.length === 0 ? (
+        <Aviso>No se encontraron clientas.</Aviso>
       ) : (
-        <div className="overflow-x-auto bg-surface-container-lowest rounded-sm border border-outline-variant/20">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-outline-variant/20 text-left">
-                <th className="px-md py-sm font-label-md text-secondary">Nombre</th>
-                <th className="px-md py-sm font-label-md text-secondary">Teléfono</th>
-                <th className="px-md py-sm font-label-md text-secondary">Cumpleaños</th>
-                <th className="px-md py-sm font-label-md text-secondary">Opt-in</th>
-                <th className="px-md py-sm font-label-md text-secondary text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {clientas.map((c) => (
-                <tr key={c.id} className="border-b border-outline-variant/10 last:border-0">
-                  <td className="px-md py-sm">{c.nombre}</td>
-                  <td className="px-md py-sm">{c.telefono}</td>
-                  <td className="px-md py-sm">{c.fechaNacimiento || '—'}</td>
-                  <td className="px-md py-sm">
-                    <div className="flex gap-1">
-                      {c.recordatorios && (
-                        <span className="text-xs bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full">
-                          Recordatorios
-                        </span>
-                      )}
-                      {c.marketing && (
-                        <span className="text-xs bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded-full">
-                          Marketing
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-md py-sm text-right">
-                    <button
-                      onClick={() => abrirEditar(c)}
-                      className="text-primary hover:underline text-sm mr-md"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => setClientaAEliminar(c)}
-                      className="text-error hover:underline text-sm"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid gap-3 md:grid-cols-2">
+          {visibles.map((c) => (
+            <div
+              key={c.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => abrirEditar(c)}
+              onKeyDown={(e) => e.key === 'Enter' && abrirEditar(c)}
+              className={`${CARD} flex cursor-pointer items-center gap-3`}
+            >
+              <Avatar nombre={c.nombre} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">{c.nombre}</p>
+                <p className="text-sm text-secondary">+{c.telefono}</p>
+                {c.fechaNacimiento && (
+                  <p className="text-xs text-secondary">
+                    Cumple: {format(parseISO(c.fechaNacimiento), "d 'de' MMM", { locale: es })}
+                  </p>
+                )}
+                {(c.recordatorios || c.marketing) && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {c.recordatorios && <Chip>Recordatorios</Chip>}
+                    {c.marketing && <Chip tono="sand">Marketing</Chip>}
+                  </div>
+                )}
+              </div>
+              <a
+                href={`tel:+${c.telefono}`}
+                onClick={detener}
+                aria-label="Llamar"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-container text-secondary"
+              >
+                <Icon name="phone" className="h-5 w-5" />
+              </a>
+              <a
+                href={`https://wa.me/${c.telefono}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={detener}
+                aria-label="Escribir por WhatsApp"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container text-primary"
+              >
+                <Icon name="chat" className="h-5 w-5" />
+              </a>
+            </div>
+          ))}
         </div>
       )}
+
+      <Fab onClick={abrirCrear}>Nueva clienta</Fab>
 
       {modalOpen && (
         <ClientaFormModal
           clienta={clientaEditando}
           onClose={() => setModalOpen(false)}
-          onSaved={handleGuardado}
+          onSaved={() => {
+            setModalOpen(false)
+            cargar()
+          }}
+          onDelete={pedirEliminar}
         />
       )}
 

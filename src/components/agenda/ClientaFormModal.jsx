@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
+import FormSheet from './FormSheet'
+import { Campo } from './ui'
+import { INPUT, TEXTAREA } from './estilos'
 
 const PREFIJO_TELEFONO = '521'
 
-const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
+const ClientaFormModal = ({ clienta, onClose, onSaved, onDelete }) => {
   const { request } = useAgendaApi()
   const esEdicion = Boolean(clienta)
 
@@ -22,25 +25,20 @@ const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
-
     if (name === 'telefono') {
-      const soloDigitos = value.replace(/\D/g, '').slice(0, 10)
-      setForm((prev) => ({ ...prev, telefono: soloDigitos }))
+      setForm((prev) => ({ ...prev, telefono: value.replace(/\D/g, '').slice(0, 10) }))
       return
     }
-
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-
     if (form.telefono.length !== 10) {
       setError('El teléfono debe tener 10 dígitos')
       return
     }
-
     setGuardando(true)
 
     const body = {
@@ -50,17 +48,14 @@ const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
     }
 
     try {
-      const path = esEdicion ? `/Clientas/id/${clienta.id}` : '/Clientas'
-      const res = await request(path, {
+      const res = await request(esEdicion ? `/Clientas/id/${clienta.id}` : '/Clientas', {
         method: esEdicion ? 'PUT' : 'POST',
         body: JSON.stringify(body),
       })
-
       if (!res.ok) {
         const errData = await res.json().catch(() => null)
         throw new Error(errData?.message || 'No se pudo guardar la clienta')
       }
-
       onSaved()
     } catch (err) {
       setError(err.message)
@@ -70,109 +65,55 @@ const ClientaFormModal = ({ clienta, onClose, onSaved }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
-      <form
-        onSubmit={handleSubmit}
-        style={{ width: '90vw', maxWidth: '480px', minWidth: '300px' }}
-        className="bg-surface-container-lowest rounded-lg shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto my-auto shrink-0 box-border"
-      >
-        <h2 className="font-headline-md text-xl font-bold text-primary">
-          {esEdicion ? 'Editar clienta' : 'Nueva clienta'}
-        </h2>
+    <FormSheet
+      title={esEdicion ? 'Editar clienta' : 'Nueva clienta'}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      guardando={guardando}
+      error={error}
+      onDelete={esEdicion ? onDelete : undefined}
+      deleteLabel="Eliminar clienta"
+    >
+      <Campo label="Nombre">
+        <input name="nombre" value={form.nombre} onChange={handleChange} required className={INPUT} />
+      </Campo>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Nombre
+      <Campo label="Teléfono">
+        <div className="flex h-12 items-stretch overflow-hidden rounded-xl border border-outline-variant bg-white focus-within:border-primary focus-within:ring-4 focus-within:ring-primary-container/60">
+          <span className="flex select-none items-center bg-surface-container px-3 text-secondary">
+            +{PREFIJO_TELEFONO}
+          </span>
           <input
-            name="nombre"
-            value={form.nombre}
+            name="telefono"
+            value={form.telefono}
             onChange={handleChange}
             required
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            inputMode="numeric"
+            placeholder="8713960369"
+            className="min-w-0 flex-1 px-3 text-base focus:outline-none"
           />
-        </label>
+        </div>
+      </Campo>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Teléfono
-          <div className="flex items-stretch border border-outline-variant rounded-sm overflow-hidden focus-within:ring-1 focus-within:ring-primary">
-            <span className="flex items-center px-2 bg-surface-container text-secondary text-base sm:text-sm select-none">
-              +{PREFIJO_TELEFONO}
-            </span>
-            <input
-              name="telefono"
-              value={form.telefono}
-              onChange={handleChange}
-              required
-              inputMode="numeric"
-              placeholder="8713960369"
-              className="flex-1 p-2 w-full text-base sm:text-sm focus:outline-none min-w-0"
-            />
-          </div>
-        </label>
+      <Campo label="Fecha de nacimiento">
+        <input type="date" name="fechaNacimiento" value={form.fechaNacimiento} onChange={handleChange} className={INPUT} />
+      </Campo>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Fecha de nacimiento
-          <input
-            type="date"
-            name="fechaNacimiento"
-            value={form.fechaNacimiento}
-            onChange={handleChange}
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        </label>
-
-        <label className="flex items-center gap-2 text-sm select-none cursor-pointer mt-1">
-          <input
-            type="checkbox"
-            name="recordatorios"
-            checked={form.recordatorios}
-            onChange={handleChange}
-            className="h-4 w-4"
-          />
+      <div className="space-y-1">
+        <label className="flex h-11 cursor-pointer select-none items-center gap-3 text-base">
+          <input type="checkbox" name="recordatorios" checked={form.recordatorios} onChange={handleChange} className="h-5 w-5 accent-primary" />
           Recibir recordatorios de citas
         </label>
-
-        <label className="flex items-center gap-2 text-sm select-none cursor-pointer">
-          <input
-            type="checkbox"
-            name="marketing"
-            checked={form.marketing}
-            onChange={handleChange}
-            className="h-4 w-4"
-          />
+        <label className="flex h-11 cursor-pointer select-none items-center gap-3 text-base">
+          <input type="checkbox" name="marketing" checked={form.marketing} onChange={handleChange} className="h-5 w-5 accent-primary" />
           Recibir promociones (marketing)
         </label>
+      </div>
 
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Notas
-          <textarea
-            name="notas"
-            value={form.notas}
-            onChange={handleChange}
-            rows={3}
-            className="border border-outline-variant rounded-sm p-2 w-full text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-          />
-        </label>
-
-        {error && <p className="text-error text-sm font-medium">{error}</p>}
-
-        <div className="flex justify-end gap-3 mt-2 pt-2 border-t border-outline-variant/30">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm text-secondary hover:text-primary transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={guardando}
-            className="bg-primary text-on-primary px-5 py-2 rounded-md text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer"
-          >
-            {guardando ? 'Guardando...' : 'Guardar'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <Campo label="Notas">
+        <textarea name="notas" value={form.notas} onChange={handleChange} rows={3} className={TEXTAREA} />
+      </Campo>
+    </FormSheet>
   )
 }
 

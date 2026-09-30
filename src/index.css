@@ -61,14 +61,14 @@
   /* ============================================
      TIPOGRAFÍA
   ============================================ */
---font-family-display-lg: 'Bodoni Moda', serif;
---font-family-headline-lg: 'Bodoni Moda', serif;
---font-family-headline-lg-mobile: 'Bodoni Moda', serif;
---font-family-headline-md: 'Bodoni Moda', serif;
---font-family-body-lg: 'Hanken Grotesk', sans-serif;
---font-family-body-md: 'Hanken Grotesk', sans-serif;
---font-family-label-md: 'Hanken Grotesk', sans-serif;
---font-family-label-sm: 'Hanken Grotesk', sans-serif;
+  --font-family-display-lg: 'Bodoni Moda', serif;
+  --font-family-headline-lg: 'Bodoni Moda', serif;
+  --font-family-headline-lg-mobile: 'Bodoni Moda', serif;
+  --font-family-headline-md: 'Bodoni Moda', serif;
+  --font-family-body-lg: 'Hanken Grotesk', sans-serif;
+  --font-family-body-md: 'Hanken Grotesk', sans-serif;
+  --font-family-label-md: 'Hanken Grotesk', sans-serif;
+  --font-family-label-sm: 'Hanken Grotesk', sans-serif;
 
   --text-display-lg: 4rem;
   --text-headline-lg: 2.5rem;
@@ -105,7 +105,8 @@
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
-    
+  }
+
   .font-display-lg,
   .font-headline-lg,
   .font-headline-md {
@@ -118,19 +119,32 @@
   .font-label-sm {
     font-family: 'Hanken Grotesk', sans-serif;
   }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
   }
-html, body {
-  overflow-x: hidden;
-}
+
   body {
-  margin: 0;
-  background-color: #fff8f7;
-  color: #201a1a;
-  font-family: 'Hanken Grotesk', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
+    margin: 0;
+    background-color: #fff8f7;
+    color: #201a1a;
+    font-family: 'Hanken Grotesk', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Asegurar que el root ocupe toda la altura y se centre */
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
   h1, h2, h3, h4, h5, h6 {
     margin: 0;
@@ -139,4 +153,49 @@ html, body {
   p {
     margin: 0;
   }
+}
+
+.agenda-theme {
+  --color-background: #faf7f5;
+  --color-surface: #faf7f5;
+  --color-primary: #7d484e;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #eed9d7;
+  --color-on-primary-container: #623137;
+  --color-secondary: #786466;
+  --color-secondary-container: #f5eae8;
+  --color-on-secondary-container: #7d484e;
+  --color-tertiary: #c99a96;
+  --color-tertiary-container: #eed9d7;
+  --color-on-tertiary-container: #623137;
+  --color-on-surface: #301b20;
+  --color-on-surface-variant: #786466;
+  --color-on-background: #301b20;
+  --color-outline-variant: #eadfd9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f8f2ef;
+  --color-surface-container: #f3ebe8;
+  --color-surface-container-high: #ece3df;
+  --color-surface-container-highest: #e5dbd7;
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--color-on-background);
+}
+
+.agenda-theme .font-headline-md,
+.agenda-theme .font-headline-lg {
+  font-family: 'Playfair Display', serif;
+}
+
+.agenda-theme :is(.font-body-md, .font-body-lg, .font-label-md, .font-label-sm) {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.animate-sheet {
+  animation: sheet-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
