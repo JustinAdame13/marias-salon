@@ -1,67 +1,99 @@
+import { useEffect, useState } from 'react'
 import { useWhatsApp } from '../context/WhatsAppContext'
+import useActiveSection from '../hooks/useActiveSection'
+import { InstagramIcon, FacebookIcon } from './icons'
 
-const InstagramIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-  </svg>
-)
+const NAV_LINKS = [
+  { id: 'services', label: 'Servicios' },
+  { id: 'about', label: 'Estilista' },
+  { id: 'location', label: 'Ubicación' },
+]
 
-const FacebookIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-  </svg>
-)
+const SOCIALS = [
+  { href: 'https://www.instagram.com/mariassbeautysalon/', label: 'Instagram', Icon: InstagramIcon },
+  { href: 'https://www.facebook.com/lupita.Garcia.Renteria.7', label: 'Facebook', Icon: FacebookIcon },
+]
 
 const Navbar = () => {
   const { openWhatsApp } = useWhatsApp()
+  const active = useActiveSection(NAV_LINKS.map((l) => l.id))
+
+  // Al hacer scroll la "píldora" se vuelve más opaca y compacta
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    // En este proyecto quien hace scroll es <body> (por height:100% +
+    // overflow-x:hidden en index.css), no window. Por eso leemos ambos y
+    // escuchamos en fase de captura: el evento scroll no "burbujea".
+    const onScroll = () =>
+      setScrolled(Math.max(window.scrollY, document.body.scrollTop) > 12)
+    onScroll()
+    document.addEventListener('scroll', onScroll, { passive: true, capture: true })
+    return () => document.removeEventListener('scroll', onScroll, { capture: true })
+  }, [])
+
   return (
-    <header className="w-full top-0 sticky z-50 bg-surface/80 backdrop-blur-md">
-      <nav className="max-w-container-max mx-auto px-2 sm:px-md py-2 sm:py-sm flex justify-between items-center">
+    <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/70 to-transparent pb-2 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-md">
+      <nav
+        aria-label="Principal"
+        className={`glass mx-auto flex max-w-container-max items-center justify-between rounded-full pl-4 pr-2 transition-all duration-300 sm:pl-6 ${
+          scrolled ? 'glass-strong py-1.5' : 'py-2'
+        }`}
+      >
+        <a href="#inicio" aria-label="Maria's Beauty Salon — inicio" className="shrink-0">
+          <img
+            src="/logo-marias.png"
+            alt="Maria's Beauty Salon"
+            width="640"
+            height="206"
+            className={`w-auto transition-all duration-300 ${scrolled ? 'h-8 sm:h-9' : 'h-9 sm:h-11'}`}
+          />
+        </a>
 
-        <span className="font-headline-md text-xl sm:text-2xl text-primary tracking-widest uppercase">
-          Maria's
-        </span>
+        {/* Links: solo desktop. En móvil se usan desde la barra inferior */}
+        <ul className="hidden items-center gap-1 md:flex">
+          {NAV_LINKS.map(({ id, label }) => (
+            <li key={id}>
+              <a
+                href={`#${id}`}
+                aria-current={active === id ? 'true' : undefined}
+                className={`rounded-full px-4 py-2 font-body-md text-sm transition-colors ${
+                  active === id
+                    ? 'bg-white/70 text-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-primary'
+                }`}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
 
-        <div className="hidden md:flex gap-lg">
-          <a href="#services" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300 text-sm">
-            Servicios
-          </a>
-          <a href="#about" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300 text-sm">
-            Estilista
-          </a>
-          <a href="#location" className="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-300 text-sm">
-            Ubicación
-          </a>
-        </div>
-
-        <div className="flex items-center gap-sm md:gap-md">
-          {/* Íconos sociales — compactos, solo ícono */}
-          <div className="flex items-center gap-xs">
+        <div className="flex items-center gap-1 sm:gap-2">
+          {SOCIALS.map(({ href, label, Icon }) => (
             <a
-              href="https://www.instagram.com/mariassbeautysalon/"
+              key={label}
+              href={href}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="text-on-surface-variant hover:text-primary transition-colors"
+              aria-label={label}
+              className="grid size-10 place-items-center rounded-full text-on-surface-variant transition-colors hover:bg-white/60 hover:text-primary"
             >
-              <InstagramIcon />
+              <Icon />
             </a>
-            <a
-              href="https://www.facebook.com/lupita.Garcia.Renteria.7"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="text-on-surface-variant hover:text-primary transition-colors"
-            >
-              <FacebookIcon />
-            </a>
-          </div>
+          ))}
 
-          <button onClick={openWhatsApp} className="bg-primary text-on-primary px-2 sm:px-md py-1 sm:py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity active:opacity-70 text-xs sm:text-sm">
-            Reservar Cita
+          {/* El botón de reservar en móvil vive en la barra inferior */}
+          <button
+            type="button"
+            // Ojo: () => openWhatsApp() y NO onClick={openWhatsApp}.
+            // Si pasas la función directa, React le manda el evento del click
+            // como primer argumento y se usaría como "mensaje personalizado".
+            onClick={() => openWhatsApp()}
+            className="btn-rose ml-1 hidden rounded-full px-5 py-2.5 font-label-md text-sm font-medium transition-transform hover:-translate-y-0.5 active:scale-95 md:inline-flex"
+          >
+            Reservar cita
           </button>
         </div>
-
       </nav>
     </header>
   )

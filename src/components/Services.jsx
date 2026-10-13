@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import useScrollReveal from '../hooks/useScrollReveal'
-import { fadeUp, staggerContainer, staggerItem } from '../animations/variants'
 import { useWhatsApp } from '../context/WhatsAppContext'
+import { ChevronIcon, ClockIcon, SparkleIcon, WhatsAppIcon } from './icons'
 
 const serviceCategories = [
   {
@@ -347,162 +346,221 @@ const serviceCategories = [
 // Los precios con (+) aumentan según largo y volumen del cabello
 // El diseño de uñas se cotiza por WhatsApp
 
-const ServiceRow = ({ service, isOpen, onToggle }) => (
-  <motion.div variants={staggerItem} className="py-xs">
-    <button
-      onClick={() => onToggle(service.name)}
-      className="w-full flex justify-between items-baseline group cursor-pointer text-left"
-      aria-expanded={isOpen}
-    >
-      <span className="font-body-md text-body-sm sm:text-body-md group-hover:text-primary transition-colors">
-        {service.name}
-      </span>
-      <div className="flex-grow mx-base border-b border-dotted border-outline-variant/30" />
-      <span className="font-label-md text-label-sm sm:text-label-md text-secondary whitespace-nowrap">
-        {service.price}
-      </span>
-    </button>
+const ease = [0.16, 1, 0.3, 1]
 
-    <AnimatePresence initial={false}>
-      {isOpen && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="overflow-hidden"
-        >
-          <div className="pt-sm pb-base pl-base border-l-2 border-primary/20 ml-xs mt-xs">
-            <p className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant mb-xs">
-              {service.description}
-            </p>
-            <p className="font-label-sm text-label-sm text-secondary">
-              ⏱ {service.duration} · {service.includes}
-            </p>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </motion.div>
-)
-
-// AHORA recibe openService y onToggle como props — ya no tiene su propio useState
-const ServiceCategory = ({ title, services, openService, onToggle }) => {
-  const { ref, controls } = useScrollReveal()
+// ---------- Una fila de servicio (acordeón) ----------
+const ServiceRow = ({ service, isOpen, onToggle, onBook }) => {
+  const panelId = `svc-${service.name.replace(/\W+/g, '-').toLowerCase()}`
 
   return (
-    <motion.div
-      ref={ref}
-      variants={staggerContainer}
-      initial="hidden"
-      animate={controls}
-      className="space-y-xs"
-    >
-      <motion.h3
-        variants={staggerItem}
-        className="font-headline-md text-headline-base sm:text-headline-md border-b border-primary/10 pb-base text-primary mb-sm"
+    <li className="border-b border-primary/10 last:border-b-0">
+      <button
+        type="button"
+        onClick={() => onToggle(service.name)}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        className="flex min-h-14 w-full items-center gap-3 py-3 text-left"
       >
-        {title}
-      </motion.h3>
-      <div>
-        {services.map((service) => (
-          <ServiceRow
-            key={service.name}
-            service={service}
-            isOpen={openService === service.name}
-            onToggle={onToggle}
-          />
-        ))}
-      </div>
-    </motion.div>
+        <span className="flex-1 font-body-md text-[0.95rem] leading-snug text-on-background sm:text-base">
+          {service.name}
+        </span>
+        <span className="shrink-0 rounded-full bg-primary-container/70 px-3 py-1 font-label-md text-sm font-semibold text-on-primary-container">
+          {service.price}
+        </span>
+        <ChevronIcon
+          size={18}
+          className={`shrink-0 text-on-surface-variant transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            id={panelId}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease }}
+            className="overflow-hidden"
+          >
+            <div className="pb-4">
+              <p className="font-body-md text-sm leading-relaxed text-on-surface-variant sm:text-[0.95rem]">
+                {service.description}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 font-label-sm text-xs text-on-surface-variant">
+                {service.duration && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1">
+                    <ClockIcon size={14} /> {service.duration}
+                  </span>
+                )}
+                {service.includes && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1">
+                    <SparkleIcon size={14} /> {service.includes}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => onBook(service)}
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/25 px-4 py-2 font-label-md text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-on-primary"
+              >
+                <WhatsAppIcon size={16} />
+                Agendar este servicio
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </li>
   )
 }
 
+// ---------- Sección completa ----------
 const Services = () => {
-  const header = useScrollReveal()
-  const note = useScrollReveal()
-  const disclaimer = useScrollReveal()
   const { openWhatsApp } = useWhatsApp()
-
-  // El estado ahora vive aquí, en el ancestro común de TODAS las categorías
+  const [activeId, setActiveId] = useState(serviceCategories[0].id)
   const [openService, setOpenService] = useState(null)
+  const tabRefs = useRef({}) // guardamos cada chip para poder centrarlo
+
+  const activeCategory = serviceCategories.find((c) => c.id === activeId)
+
+  const selectCategory = (id) => {
+    setActiveId(id)
+    setOpenService(null)
+    // Centra el chip elegido dentro de la fila deslizable
+    tabRefs.current[id]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }
 
   const handleToggle = (name) => {
     setOpenService((prev) => (prev === name ? null : name))
   }
 
+  const handleBook = (service) => {
+    openWhatsApp(
+      `Hola 😊 Me gustaría agendar una cita para *${service.name}* en Maria's Beauty Salon. ¿Qué disponibilidad tienen? ✨`
+    )
+  }
+
   return (
-    <section id="services" className="py-8 sm:py-xl">
-      <div className="max-w-container-max mx-auto px-2 sm:px-md">
+    <section id="services" className="py-14 sm:py-20">
+      <div className="mx-auto max-w-container-max px-4 sm:px-md">
 
         <motion.div
-          ref={header.ref}
-          variants={fadeUp}
-          initial="hidden"
-          animate={header.controls}
-          className="text-center mb-8 sm:mb-xl"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8, ease }}
+          className="text-center"
         >
-          <span className="font-label-md text-label-sm sm:text-label-md text-primary tracking-[0.2em] uppercase block mb-sm">
-            Menú de Servicios
+          <span className="font-label-md text-xs uppercase tracking-[0.25em] text-gold-ink">
+            Menú de servicios
           </span>
-          <h2 className="font-display-lg text-3xl sm:text-5xl md:text-6xl text-on-background">
-            Precios & Servicios
+          <h2 className="mt-3 font-['Bodoni_Moda'] text-4xl text-on-background sm:text-5xl md:text-6xl">
+            Precios <span className="italic text-primary">&amp;</span> servicios
           </h2>
+          <div className="mx-auto mt-5 w-24 gold-rule" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-x-xl gap-y-lg">
-          {serviceCategories.map((category) => (
-            <ServiceCategory
-              key={category.id}
-              title={category.title}
-              services={category.services}
-              openService={openService}
-              onToggle={handleToggle}
-            />
-          ))}
+        {/* ---------- Pestañas (chips deslizables) ---------- */}
+        {/* -mx-4 px-4: el carrusel llega al borde de la pantalla en móvil */}
+        <div
+          role="tablist"
+          aria-label="Categorías de servicios"
+          className="no-scrollbar -mx-4 mt-6 -mb-4 flex snap-x gap-2 overflow-x-auto px-4 pt-2 pb-8 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0"
+        >
+          {serviceCategories.map((cat) => {
+            const selected = cat.id === activeId
+            return (
+              <button
+                key={cat.id}
+                ref={(el) => { tabRefs.current[cat.id] = el }}
+                type="button"
+                role="tab"
+                id={`tab-${cat.id}`}
+                aria-selected={selected}
+                aria-controls="services-panel"
+                onClick={() => selectCategory(cat.id)}
+                className={`relative isolate shrink-0 snap-center rounded-full px-4 py-2.5 font-label-md text-sm font-medium transition-colors ${
+                  selected ? 'text-on-primary' : 'glass text-on-surface-variant hover:text-primary'
+                }`}
+              >
+                {/* layoutId: framer-motion "desliza" la píldora rosa
+                    de un chip al otro en lugar de aparecer/desaparecer */}
+                {selected && (
+                  <motion.span
+                    layoutId="active-chip"
+                    className="btn-rose absolute inset-0 -z-10 rounded-full"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                  />
+                )}
+                {cat.title}
+                <span className={`ml-1.5 text-xs ${selected ? 'text-white/75' : 'text-on-surface-variant/70'}`}>
+                  {cat.services.length}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
-        <motion.div
-          ref={disclaimer.ref}
-          variants={fadeUp}
-          initial="hidden"
-          animate={disclaimer.controls}
-          className="mt-lg p-3 sm:p-lg bg-surface-container-low rounded-sm border border-primary/5 w-full max-w-2xl mx-auto"
+        {/* ---------- Lista de la categoría activa ---------- */}
+        <div
+          id="services-panel"
+          role="tabpanel"
+          aria-labelledby={`tab-${activeId}`}
+          className="glass relative isolate mx-auto max-w-[48rem] rounded-[1.75rem] px-5 py-2 sm:px-8 sm:py-4"
         >
-          <h4 className="font-label-md text-label-sm sm:text-label-md text-primary uppercase tracking-wider mb-sm text-center">
-            Notas Importantes
-          </h4>
-          <ul className="space-y-xs">
-            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
-              · Los precios con <strong>+</strong> aumentan según el largo y volumen del cabello.
-            </li>
-            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
-              · El diseño de uñas se cotiza por WhatsApp — puede tener costo adicional.
-            </li>
-            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
-              · Para pestañas, acudir <strong>sin maquillaje</strong> a la cita.
-            </li>
-            <li className="font-body-md text-body-sm sm:text-body-md text-on-surface-variant">
-              · Atención <strong>exclusiva con cita previa</strong>, una clienta a la vez.
-            </li>
-          </ul>
-        </motion.div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeId}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.25, ease }}
+            >
+              <h3 className="pt-3 font-['Bodoni_Moda'] text-2xl text-primary sm:text-3xl">
+                {activeCategory.title}
+              </h3>
+              <ul className="mt-1">
+                {activeCategory.services.map((service) => (
+                  <ServiceRow
+                    key={service.name}
+                    service={service}
+                    isOpen={openService === service.name}
+                    onToggle={handleToggle}
+                    onBook={handleBook}
+                  />
+                ))}
+              </ul>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-        <motion.div
-          ref={note.ref}
-          variants={fadeUp}
-          initial="hidden"
-          animate={note.controls}
-          className="mt-md text-center"
-        >
-          <p className="font-body-md text-body-sm sm:text-body-md text-secondary mb-sm">
+        {/* ---------- Notas ---------- */}
+        <div className="mx-auto mt-6 max-w-[48rem] rounded-[1.75rem] border border-gold/30 bg-white/40 p-5 sm:p-6">
+          <h4 className="font-label-md text-xs uppercase tracking-[0.25em] text-gold-ink">
+            Notas importantes
+          </h4>
+          <ul className="mt-3 space-y-2 font-body-md text-sm leading-relaxed text-on-surface-variant sm:text-[0.95rem]">
+            <li>· Los precios con <strong className="text-primary">+</strong> aumentan según el largo y volumen del cabello.</li>
+            <li>· El diseño de uñas se cotiza por WhatsApp; puede tener costo adicional.</li>
+            <li>· Para pestañas, acudir <strong className="text-primary">sin maquillaje</strong> a la cita.</li>
+            <li>· Atención <strong className="text-primary">exclusiva con cita previa</strong>, una clienta a la vez.</li>
+          </ul>
+        </div>
+
+        <div className="mt-8 text-center">
+          <p className="font-body-md text-sm text-secondary sm:text-base">
             ¿Tienes dudas sobre algún servicio o precio?
           </p>
-          <button onClick={openWhatsApp} className="inline-block bg-primary text-on-primary px-base sm:px-lg py-sm rounded-sm font-label-md hover:opacity-90 transition-opacity text-xs sm:text-sm">
-          Consultar por WhatsApp
+          <button
+            type="button"
+            onClick={() => openWhatsApp()}
+            className="btn-rose mt-3 inline-flex items-center gap-2 rounded-full px-6 py-3 font-label-md text-sm font-medium transition-transform hover:-translate-y-0.5 active:scale-[0.97]"
+          >
+            <WhatsAppIcon size={18} />
+            Consultar por WhatsApp
           </button>
-        </motion.div>
-
+        </div>
       </div>
     </section>
   )

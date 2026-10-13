@@ -1,108 +1,71 @@
-// Íconos SVG de cada red social como componentes pequeños
-// Así evitamos depender de librerías externas solo para íconos
-const InstagramIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-  </svg>
-)
+import { InstagramIcon, FacebookIcon } from './icons'
 
-const FacebookIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-  </svg>
-)
+const SOCIALS = [
+  { href: 'https://www.instagram.com/mariassbeautysalon/', label: 'Instagram', Icon: InstagramIcon },
+  { href: 'https://www.facebook.com/lupita.Garcia.Renteria.7', label: 'Facebook', Icon: FacebookIcon },
+]
+
+const LINKS = [
+  { href: '#services', label: 'Servicios' },
+  { href: '#about', label: 'Acerca de' },
+  { href: '#location', label: 'Ubicación' },
+]
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-surface-container-low">
+    // pb extra en móvil: deja espacio para la barra inferior fija
+    <footer className="px-3 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] pt-6 sm:px-md md:pb-8">
+      <div className="glass mx-auto max-w-container-max rounded-[2rem] px-6 py-10 sm:px-10">
+        <div className="flex flex-col gap-10 md:flex-row md:justify-between">
 
-      {/* Bloque principal */}
-      <div className="max-w-container-max mx-auto px-2 sm:px-md py-8 sm:py-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-xl">
-
-          {/* Columna izquierda — identidad */}
-          {/* max-w-sm limita el ancho para que el texto no sea tan angosto */}
-          <div className="flex flex-col gap-sm w-full md:w-80">
-            <span className="font-headline-md text-xl sm:text-2xl text-primary tracking-widest uppercase">
-              Maria's
-            </span>
-            <p className="font-body-md text-body-sm sm:text-body-md text-secondary leading-relaxed">
-              Redefiniendo la belleza a través del equilibrio
-              y la atención personalizada en Torreón.
+          {/* Identidad */}
+          <div className="max-w-[22rem]">
+            <img src="/logo-marias.png" alt="Maria's Beauty Salon" width="640" height="206" className="h-14 w-auto" loading="lazy" />
+            <p className="mt-4 font-body-md text-sm leading-relaxed text-secondary">
+              Redefiniendo la belleza a través del equilibrio y la atención personalizada en Torreón.
             </p>
-
-            {/* Botones de redes sociales */}
-            {/* mt-sm agrega separación visual entre el texto y los botones */}
-            <div className="flex gap-sm mt-sm">
-              <a
-                href="https://www.instagram.com/mariassbeautysalon/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-xs border border-primary/30 text-primary px-md py-xs rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all duration-300 text-xs sm:text-sm"
-              >
-                <InstagramIcon />
-                Instagram
-              </a>
-              <a
-                href="https://www.facebook.com/lupita.Garcia.Renteria.7"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-xs border border-primary/30 text-primary px-md py-xs rounded-sm font-label-md hover:bg-primary hover:text-on-primary transition-all duration-300 text-xs sm:text-sm"
-              >
-                <FacebookIcon />
-                Facebook
-              </a>
+            <div className="mt-5 flex gap-2">
+              {SOCIALS.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/50 px-4 py-2 font-label-md text-sm text-primary transition-colors hover:bg-primary hover:text-on-primary"
+                >
+                  <Icon size={16} />
+                  {label}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Columna derecha — navegación */}
-          <div className="flex gap-xl sm:gap-xl">
-
-            {/* Explora */}
-            <div className="flex flex-col gap-base">
-              <span className="font-label-md text-label-sm sm:text-label-md text-primary uppercase tracking-wider">
-                Explora
-              </span>
-              <a href="#services" className="font-body-md text-body-sm sm:text-body-md text-secondary hover:text-primary transition-colors">
-                Servicios
-              </a>
-              <a href="#about" className="font-body-md text-body-sm sm:text-body-md text-secondary hover:text-primary transition-colors">
-                Acerca de
-              </a>
-              <a href="#location" className="font-body-md text-body-sm sm:text-body-md text-secondary hover:text-primary transition-colors">
-                Ubicación
-              </a>
-            </div>
-
-            {/* Contacto */}
-            <div className="flex flex-col gap-base">
-              <span className="font-label-md text-label-sm sm:text-label-md text-primary uppercase tracking-wider">
-                Contacto
-              </span>
-              <p className="font-body-md text-body-sm sm:text-body-md text-secondary">
-                Torreón, Coahuila
-              </p>
-              <p className="font-body-md text-body-sm sm:text-body-md text-secondary">
-                Lunes a Sabado: 9:00 AM – 8:00 PM
-              </p>
-              <p className="font-body-md text-body-sm sm:text-body-md text-secondary">
-                Las citas fuera de horario tienen un costo extra
+          {/* Navegación + contacto */}
+          <div className="grid grid-cols-2 gap-8 sm:gap-16">
+            <nav aria-label="Pie de página" className="flex flex-col gap-3">
+              <span className="font-label-md text-xs uppercase tracking-[0.25em] text-gold-ink">Explora</span>
+              {LINKS.map((l) => (
+                <a key={l.href} href={l.href} className="font-body-md text-sm text-secondary transition-colors hover:text-primary">
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+            <div className="flex flex-col gap-3">
+              <span className="font-label-md text-xs uppercase tracking-[0.25em] text-gold-ink">Contacto</span>
+              <p className="font-body-md text-sm text-secondary">Torreón, Coahuila</p>
+              <p className="font-body-md text-sm text-secondary">Lun a Sáb · 9:00 a 20:00</p>
+              <p className="font-body-md text-xs leading-snug text-on-surface-variant">
+                Citas fuera de horario con costo extra
               </p>
             </div>
-
           </div>
         </div>
-      </div>
 
-      {/* Franja de copyright */}
-      <div className="border-t border-outline-variant/10">
-        <div className="max-w-container-max mx-auto px-2 sm:px-md py-md">
-          <p className="font-body-md text-body-sm sm:text-body-md text-secondary text-center md:text-left">
-            © {new Date().getFullYear()} Maria's Beauty Salon. Torreón, Coahuila.
-          </p>
-        </div>
+        <div className="mt-10 gold-rule opacity-60" />
+        <p className="mt-5 text-center font-body-md text-xs text-on-surface-variant md:text-left">
+          © {new Date().getFullYear()} Maria's Beauty Salon · Torreón, Coahuila
+        </p>
       </div>
-
     </footer>
   )
 }

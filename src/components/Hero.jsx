@@ -1,114 +1,133 @@
 import { motion } from 'framer-motion'
-import { fadeUp, fadeLeft, fadeRight } from '../animations/variants'
 import fotoMaria from '../assets/maria.jpeg'
+import { useWhatsApp } from '../context/WhatsAppContext'
+import { ArrowIcon, SparkleIcon } from './icons'
+
+// Animación de entrada en cascada: el contenedor "reparte" el inicio
+// de cada hijo con staggerChildren. Duraciones cortas (0.7s) se sienten
+// más ágiles en celular que las de 1.4s que teníamos.
+const ease = [0.16, 1, 0.3, 1]
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+}
+const item = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
+}
+
+const STATS = [
+  { value: '22', label: 'años de experiencia' },
+  { value: '1', label: 'clienta a la vez' },
+  { value: 'Lun–Sáb', label: '9:00 a 20:00' },
+]
 
 const Hero = () => {
+  const { openWhatsApp } = useWhatsApp()
+
   return (
-    <section className="relative min-h-fit md:min-h-screen flex items-center overflow-hidden pt-4 sm:pt-6 md:pt-4 pb-lg md:pb-0">
-      <div className="max-w-container-max mx-auto px-2 sm:px-md grid md:grid-cols-2 gap-lg md:gap-xl items-center">
+    <section id="inicio" className="relative pt-6 pb-12 sm:pt-10 md:pb-20 md:pt-14">
+      <div className="mx-auto grid max-w-container-max items-center gap-10 px-4 sm:px-md md:grid-cols-[1.05fr_1fr] md:gap-16">
 
-        {/* Imagen — primero en móvil (order-1), vuelve a su lugar original en desktop */}
-        <motion.div
-          variants={fadeRight}
-          initial="hidden"
-          whileInView="visible"
-          transition={{ delay: 0.1 }}
-          className="relative order-1 md:order-none"
-          viewport={{ once: false, amount: 0.3 }}
-        >
-          <div className="w-full aspect-[4/3] md:aspect-[4/5] relative rounded-2xl sm:rounded-3xl md:rounded-sm overflow-hidden shadow-xl">
-            <img
-              src={fotoMaria}
-              alt="Maria Guadalupe García Rentería, estilista profesional en Maria's Beauty Salon"
-              className="w-full h-full object-cover"
-            />
-
-            {/* Overlay con cita — SOLO en móvil, ocupa la base de la imagen */}
-            <div className="md:hidden absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pt-12 sm:pt-16 pb-sm sm:pb-md px-sm sm:px-md">
-              <p className="font-headline-md text-base sm:text-lg italic text-white">
-                "Belleza es equilibrio."
-              </p>
-              <p className="font-label-sm text-label-sm text-white/80 uppercase tracking-widest mt-1 text-xs">
-                — Maria, Estilista profesional
-              </p>
-            </div>
-          </div>
-
-          {/* Tarjeta flotante — solo desktop, igual que antes */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            viewport={{ once: false, amount: 0.3 }}
-            className="absolute -bottom-8 -left-4 bg-surface-container-low p-lg border border-outline-variant/10 shadow-lg hidden md:block rounded-sm"
+        {/* ---------- Texto ---------- */}
+        <motion.div variants={container} initial="hidden" animate="visible" className="text-center md:text-left">
+          <motion.span
+            variants={item}
+            className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-label-md text-xs tracking-wide text-on-surface-variant"
           >
-            <p className="font-headline-md text-xl italic text-primary">
-              "Belleza es equilibrio."
-            </p>
-            <p className="font-label-sm text-label-sm text-secondary uppercase tracking-widest mt-base">
-              — Maria, Estilista profesional
-            </p>
-          </motion.div>
-        </motion.div>
+            <span className="size-1.5 rounded-full bg-gold" />
+            Torreón, Coahuila · Solo con cita
+          </motion.span>
 
-        {/* Columna de texto — segundo en móvil (order-2) */}
-        <motion.div
-          variants={fadeLeft}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.3 }}
-          className="text-center md:text-left order-2 md:order-none mt-base sm:mt-lg md:mt-0"
-        >
           <motion.h1
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            transition={{ delay: 0.2 }}
-            className="font-['Bodoni_Moda'] text-3xl sm:text-4xl md:text-8xl text-primary leading-tight md:leading-none mb-sm sm:mb-md"
-            viewport={{ once: false, amount: 0.3 }}
+            variants={item}
+            className="mt-5 font-['Bodoni_Moda'] text-[2.6rem] leading-[1.05] text-on-background sm:text-6xl md:text-7xl"
           >
-            Bienvenidos a{' '}
-            <span className="italic font-light">
-              Maria's Beauty Salon
-            </span>
+            Belleza es{' '}
+            <span className="italic text-primary">equilibrio.</span>
           </motion.h1>
 
+          <motion.div variants={item} className="mx-auto mt-5 w-24 gold-rule md:mx-0" />
+
           <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            transition={{ delay: 0.55 }}
-            className="font-body-md text-body-sm sm:text-body-md md:text-body-lg text-secondary max-w-prose mx-auto md:mx-0 mb-base sm:mb-lg"
-            viewport={{ once: false, amount: 0.3 }}
+            variants={item}
+            className="mx-auto mt-5 max-w-[28rem] font-body-md text-base leading-relaxed text-secondary sm:text-lg md:mx-0"
           >
-            Un espacio donde la serenidad se encuentra
-            con la excelencia técnica. Redescubre tu estilo en
-            un entorno de calma y profesionalismo.
+            Un espacio donde la serenidad se encuentra con la excelencia técnica.
+            Redescubre tu estilo en un entorno de calma y profesionalismo.
           </motion.p>
 
           <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            transition={{ delay: 0.85 }}
-            className="flex gap-sm sm:gap-md flex-wrap justify-center md:justify-start"
-            viewport={{ once: false, amount: 0.3 }}
+            variants={item}
+            className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center md:justify-start"
           >
+            <button
+              type="button"
+              onClick={() => openWhatsApp()}
+              className="btn-rose inline-flex h-13 items-center justify-center gap-2 rounded-full px-7 font-label-md text-[0.95rem] font-medium transition-transform hover:-translate-y-0.5 active:scale-[0.97]"
+            >
+              Reservar mi cita
+              <ArrowIcon size={18} />
+            </button>
             <a
               href="#services"
-              className="bg-primary text-on-primary px-base sm:px-lg py-sm rounded-sm font-label-md transition-all hover:-translate-y-0.5 hover:shadow-lg text-xs sm:text-sm"
+              className="glass inline-flex h-13 items-center justify-center rounded-full px-7 font-label-md text-[0.95rem] font-medium text-primary transition-transform hover:-translate-y-0.5 active:scale-[0.97]"
             >
-              Explorar Servicios
-            </a>
-            <a
-              href="#about"
-              className="border border-primary/20 text-primary px-base sm:px-lg py-sm rounded-sm font-label-md hover:bg-primary-container/10 transition-all text-xs sm:text-sm"
-            >
-              Nuestra Historia
+              Ver servicios y precios
             </a>
           </motion.div>
+
+          {/* Estadísticas rápidas en vidrio */}
+          <motion.ul variants={item} className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
+            {STATS.map((s) => (
+              <li key={s.label} className="glass rounded-2xl px-2 py-3 text-center md:text-left md:px-4">
+                <p className="font-['Bodoni_Moda'] text-xl text-primary sm:text-2xl">{s.value}</p>
+                <p className="mt-0.5 font-label-sm text-[0.7rem] leading-tight text-on-surface-variant sm:text-xs">
+                  {s.label}
+                </p>
+              </li>
+            ))}
+          </motion.ul>
         </motion.div>
 
+        {/* ---------- Foto ---------- */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.9, ease, delay: 0.15 }}
+          className="relative mx-auto w-full max-w-[28rem] md:max-w-none"
+        >
+          {/* Halo de color detrás de la foto */}
+          <div
+            aria-hidden
+            className="absolute -inset-4 -z-10 rounded-[2.5rem] bg-gradient-to-br from-blush/40 via-primary-container/50 to-gold/25 blur-2xl"
+          />
+
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-25px_rgb(110_58_66/0.45)] ring-1 ring-white/60">
+            <img
+              src={fotoMaria}
+              alt="Maria Guadalupe García Rentería, estilista profesional en Maria's Beauty Salon"
+              className="size-full object-cover"
+              fetchPriority="high"
+            />
+
+            {/* Insignia flotante arriba */}
+            <span className="glass glass-strong absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-label-md text-xs text-primary">
+              <SparkleIcon size={14} />
+              Atención personalizada
+            </span>
+
+            {/* Tarjeta de vidrio sobre la foto */}
+            <div className="glass glass-strong absolute inset-x-3 bottom-3 rounded-3xl p-4 sm:inset-x-4 sm:bottom-4 sm:p-5">
+              <p className="font-['Bodoni_Moda'] text-lg italic text-on-background sm:text-xl">
+                Maria García Rentería
+              </p>
+              <p className="mt-0.5 font-label-sm text-xs uppercase tracking-[0.18em] text-gold-ink">
+                Estilista profesional
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

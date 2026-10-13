@@ -13,28 +13,40 @@ const WhatsAppModal = () => {
   return (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-[#3d2f30]/30 p-4 backdrop-blur-md"
     >
-      <div className="bg-surface-container-lowest rounded-lg shadow-2xl p-lg flex flex-col items-center gap-md w-80 mx-md">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="wa-modal-title"
+        className="glass glass-strong flex w-full max-w-[21rem] flex-col items-center gap-4 rounded-[2rem] p-6"
+      >
         <button
+          type="button"
           onClick={closeModal}
-          className="self-end text-on-surface-variant hover:text-primary transition-colors text-xl leading-none"
+          className="grid size-9 place-items-center self-end rounded-full text-lg leading-none text-[#6b5a5a] transition-colors hover:bg-white/70 hover:text-[#9c5560]"
           aria-label="Cerrar"
         >
           ✕
         </button>
-        <h3 className="font-headline-md text-headline-md text-primary text-center">
+        <h3 id="wa-modal-title" className="-mt-4 text-center font-['Bodoni_Moda'] text-3xl text-[#9c5560]">
           Agenda tu cita
         </h3>
-        <p className="font-body-md text-body-md text-secondary text-center">
+        <p className="text-center font-body-md text-sm text-[#6b5a5a]">
           Escanea el código con tu teléfono para abrir WhatsApp
         </p>
-        <div className="p-base bg-white rounded-sm">
-          <QRCodeSVG value={activeUrl} size={180} fgColor="#7c5454" bgColor="#ffffff" />
+        <div className="rounded-2xl bg-white p-3 shadow-sm">
+          <QRCodeSVG value={activeUrl} size={180} fgColor="#9c5560" bgColor="#ffffff" />
         </div>
-        <p className="font-label-sm text-label-sm text-on-surface-variant text-center">
-          Maria's Beauty Salon · Torreón, Coah.
-        </p>
+        <a
+          href={activeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-label-md text-sm text-[#9c5560] underline underline-offset-4"
+        >
+          o abrir WhatsApp Web
+        </a>
+        <p className="font-label-sm text-xs text-[#6b5a5a]">Maria's Beauty Salon · Torreón, Coah.</p>
       </div>
     </div>
   )
