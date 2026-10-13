@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/agenda/citas', label: 'Citas', icon: 'calendar', roles: TODOS, primaria: true },
   { to: '/agenda/clientas', label: 'Clientas', icon: 'users', roles: TODOS, primaria: true },
   { to: '/agenda/mensajes', label: 'Mensajes', icon: 'chat', roles: ['ADMIN'], primaria: true },
+  { to: '/agenda/estadisticas', label: 'Estadísticas', icon: 'chart', roles: ['ADMIN', 'JEFA'] },
   { to: '/agenda/servicios', label: 'Servicios', icon: 'tag', roles: TODOS },
   { to: '/agenda/empleadas', label: 'Empleadas', icon: 'user', roles: ['ADMIN'] },
   { to: '/agenda/plantillas', label: 'Plantillas', icon: 'doc', roles: ['ADMIN'] },
@@ -25,19 +26,27 @@ const AgendaLayout = () => {
   const visibles = NAV_ITEMS.filter((i) => i.roles.includes(user?.rol))
   const primarias = visibles.filter((i) => i.primaria)
   const secundarias = visibles.filter((i) => !i.primaria)
+  const ruta = pathname.replace(/\/+$/, '') // "/agenda/" → "/agenda"
   const seccionActual = visibles.find((i) =>
-    i.end ? pathname === i.to : pathname.startsWith(i.to)
+    i.end ? ruta === i.to : ruta.startsWith(i.to)
   )?.label
   const menuActivo = secundarias.some((i) => pathname.startsWith(i.to))
   const inicial = (user?.username || '?').charAt(0).toUpperCase()
 
   return (
-    <div className="agenda-theme min-h-screen bg-background">
-      {/* Barra lateral (escritorio) */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-outline-variant bg-white p-5 md:flex">
-        <div className="mb-8">
-          <p className="font-headline-md text-2xl text-primary">Maria's</p>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">Agenda</p>
+    <div className="agenda-theme min-h-screen">
+      {/* Mismas manchas de color que la landing: el vidrio necesita algo detrás */}
+      <div aria-hidden className="agenda-ambient" />
+
+      {/* Barra lateral (escritorio): un panel de vidrio flotante */}
+      <aside className="glass fixed inset-y-3 left-3 z-30 hidden w-60 flex-col rounded-[2rem] p-5 md:flex">
+        <div className="mb-8 px-1">
+          <img src="/logo-marias.png" alt="Maria's Beauty Salon" width="640" height="206" className="h-11 w-auto" />
+          <div className="mt-3 flex items-center gap-2">
+            <div className="h-px flex-1 gold-rule" />
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-ink">Agenda</p>
+            <div className="h-px flex-1 gold-rule" />
+          </div>
         </div>
         <nav className="flex flex-1 flex-col gap-1">
           {visibles.map((item) => (
@@ -46,10 +55,10 @@ const AgendaLayout = () => {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
+                `flex h-11 items-center gap-3 rounded-full px-4 text-sm transition-colors ${
                   isActive
-                    ? 'bg-primary-container font-bold text-primary'
-                    : 'font-medium text-secondary hover:bg-surface-container'
+                    ? 'bg-white/80 font-semibold text-primary shadow-sm'
+                    : 'font-medium text-on-surface-variant hover:bg-white/50 hover:text-primary'
                 }`
               }
             >
@@ -58,12 +67,20 @@ const AgendaLayout = () => {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-outline-variant pt-4">
-          <p className="truncate text-sm font-semibold">{user?.username}</p>
-          <p className="mb-3 text-xs text-secondary">{user?.rol}</p>
+        <div className="pt-4">
+          <div className="mb-3 gold-rule" />
+          <div className="mb-2 flex items-center gap-3 px-1">
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-container font-['Bodoni_Moda'] text-lg text-primary ring-2 ring-white/80">
+              {inicial}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{user?.username}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-gold-ink">{user?.rol}</p>
+            </div>
+          </div>
           <button
             onClick={logout}
-            className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-secondary hover:bg-surface-container"
+            className="flex h-11 w-full items-center gap-3 rounded-full px-4 text-sm font-medium text-on-surface-variant hover:bg-white/50 hover:text-primary"
           >
             <Icon name="logout" className="h-5 w-5" />
             Cerrar sesión
@@ -72,63 +89,58 @@ const AgendaLayout = () => {
       </aside>
 
       <div className="md:pl-64">
-        {/* Encabezado (móvil) */}
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-outline-variant/60 bg-background/90 px-4 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md md:hidden">
-          <div className="min-w-0">
-            <p className="font-headline-md text-xl sm:text-2xl leading-none text-primary truncate">Maria's Agenda</p>
-            <p className="mt-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-secondary truncate">
-              {seccionActual}
-            </p>
-          </div>
-          <div className="relative shrink-0 ml-2">
-            <div className="grid h-10 w-10 sm:h-11 sm:w-11 place-items-center rounded-full bg-primary-container font-bold text-primary">
-              {inicial}
+        {/* Encabezado (móvil): la misma "píldora de vidrio" del Navbar de la landing */}
+        <header className="sticky top-0 z-30 bg-gradient-to-b from-background via-background/70 to-transparent px-3 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
+          <div className="glass flex items-center justify-between gap-2 rounded-full py-1.5 pl-4 pr-1.5">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <img src="/logo-marias.png" alt="Maria's" width="640" height="206" className="h-8 w-auto shrink-0" />
+              <span className="h-5 w-px shrink-0 bg-gold/50" />
+              <p className="truncate font-['Bodoni_Moda'] text-base italic text-primary">{seccionActual}</p>
             </div>
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 sm:px-2 py-px text-[8px] sm:text-[9px] font-bold tracking-wider text-white">
-              {user?.rol}
-            </span>
+            <div className="relative shrink-0">
+              <div className="grid size-10 place-items-center rounded-full bg-primary-container font-['Bodoni_Moda'] text-lg text-primary ring-2 ring-white/80">
+                {inicial}
+              </div>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-gold-ink px-1.5 py-px text-[8px] font-bold tracking-wider text-white">
+                {user?.rol}
+              </span>
+            </div>
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-4 md:px-8 md:pb-12 md:pt-8">
+        <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-3 md:px-8 md:pb-12 md:pt-10">
           <Outlet />
         </main>
       </div>
 
-      {/* Barra inferior (móvil) */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-outline-variant bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden">
-        <ul className="flex h-16 items-stretch">
+      {/* Barra inferior (móvil): píldora flotante igual a MobileTabBar de la landing */}
+      <nav className="glass glass-strong fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-40 rounded-full p-1.5 md:hidden">
+        <ul className="flex items-stretch gap-1">
           {primarias.map((item) => (
             <li key={item.to} className="flex-1">
               <NavLink
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex h-full flex-col items-center justify-center gap-0.5 text-[11px] ${
-                    isActive ? 'font-bold text-primary' : 'font-medium text-secondary'
+                  `flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[0.68rem] transition-colors ${
+                    isActive ? 'bg-white/80 font-semibold text-primary shadow-sm' : 'font-medium text-on-surface-variant'
                   }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    <Icon name={item.icon} className="h-6 w-6" />
-                    <span>{item.label}</span>
-                    <span className={`h-1 w-1 rounded-full ${isActive ? 'bg-primary' : 'bg-transparent'}`} />
-                  </>
-                )}
+                <Icon name={item.icon} className="h-5 w-5" />
+                <span>{item.label}</span>
               </NavLink>
             </li>
           ))}
           <li className="flex-1">
             <button
               onClick={() => setMenuAbierto(true)}
-              className={`flex h-full w-full flex-col items-center justify-center gap-0.5 text-[11px] ${
-                menuActivo ? 'font-bold text-primary' : 'font-medium text-secondary'
+              className={`flex h-14 w-full flex-col items-center justify-center gap-0.5 rounded-full text-[0.68rem] transition-colors ${
+                menuActivo ? 'bg-white/80 font-semibold text-primary shadow-sm' : 'font-medium text-on-surface-variant'
               }`}
             >
-              <Icon name="grid" className="h-6 w-6" />
+              <Icon name="grid" className="h-5 w-5" />
               <span>Menú</span>
-              <span className={`h-1 w-1 rounded-full ${menuActivo ? 'bg-primary' : 'bg-transparent'}`} />
             </button>
           </li>
         </ul>
@@ -142,19 +154,21 @@ const AgendaLayout = () => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMenuAbierto(false)}
-                className="flex h-12 items-center gap-3 rounded-xl px-3 text-base font-medium hover:bg-surface-container"
+                className={`flex h-12 items-center gap-3 rounded-full px-4 text-base font-medium transition-colors ${
+                  pathname.startsWith(item.to) ? 'bg-primary-container text-primary' : 'hover:bg-surface-container'
+                }`}
               >
                 <Icon name={item.icon} className="h-5 w-5 text-primary" />
                 {item.label}
               </Link>
             ))}
-            <div className="my-2 border-t border-outline-variant" />
-            <p className="px-3 text-xs text-secondary">
+            <div className="my-3 gold-rule" />
+            <p className="px-4 text-xs text-secondary">
               {user?.username} · {user?.rol}
             </p>
             <button
               onClick={logout}
-              className="flex h-12 w-full items-center gap-3 rounded-xl px-3 text-base font-medium text-error hover:bg-surface-container"
+              className="flex h-12 w-full items-center gap-3 rounded-full px-4 text-base font-medium text-error hover:bg-surface-container"
             >
               <Icon name="logout" className="h-5 w-5" />
               Cerrar sesión

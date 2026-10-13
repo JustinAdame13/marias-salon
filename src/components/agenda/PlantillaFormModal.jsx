@@ -148,7 +148,7 @@ const PlantillaFormModal = ({ plantilla, onClose, onSaved, onDelete }) => {
             type="button"
             onClick={agregarParametro}
             aria-label="Agregar parámetro"
-            className="h-12 w-12 shrink-0 rounded-xl bg-primary text-xl font-semibold text-on-primary"
+            className="btn-rose h-12 w-12 shrink-0 rounded-full text-xl font-semibold"
           >
             +
           </button>

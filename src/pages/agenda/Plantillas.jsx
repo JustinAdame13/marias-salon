@@ -93,7 +93,7 @@ const Plantillas = () => {
               onKeyDown={(e) => e.key === 'Enter' && abrirEditar(p)}
               className={`${CARD} flex items-center gap-3 ${puedeModificar ? 'cursor-pointer' : ''}`}
             >
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-white/80 bg-surface-container-low">
                 {p.headerImageUrl && (
                   <img
                     src={p.headerImageUrl}

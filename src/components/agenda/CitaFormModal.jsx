@@ -9,7 +9,7 @@ const ESTADOS_CITA = [
 ]
 
 const INPUT =
-  'h-12 w-full rounded-xl border border-outline-variant bg-white px-3 text-base text-on-surface focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-container/60'
+  'h-12 w-full rounded-2xl border border-outline-variant bg-white/80 px-4 text-base text-on-surface focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-container/70'
 
 const Campo = ({ label, children }) => (
   <label className="flex flex-col gap-1.5">
@@ -134,7 +134,7 @@ const CitaFormModal = ({ cita, onClose, onSaved, onDelete }) => {
   return (
     <BottomSheet title={esEdicion ? 'Editar cita' : 'Nueva cita'} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
+        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-3">
           {cargandoDatos ? (
             <p className="py-6 text-center text-secondary">Cargando datos...</p>
           ) : (
@@ -192,7 +192,7 @@ const CitaFormModal = ({ cita, onClose, onSaved, onDelete }) => {
                 )}
 
                 {form.servicios.map((s, index) => (
-                  <div key={index} className="space-y-2 rounded-xl border border-outline-variant bg-surface-container-low p-3">
+                  <div key={index} className="card-soft space-y-2 rounded-2xl p-3">
                     <select
                       value={s.idServicio}
                       onChange={(e) => actualizarServicio(index, 'idServicio', e.target.value)}
@@ -235,7 +235,7 @@ const CitaFormModal = ({ cita, onClose, onSaved, onDelete }) => {
                   value={form.notas}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full resize-none rounded-xl border border-outline-variant bg-white p-3 text-base focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-container/60"
+                  className="w-full resize-none rounded-2xl border border-outline-variant bg-white/80 p-4 text-base focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-container/70"
                 />
               </Campo>
             </>
@@ -244,11 +244,11 @@ const CitaFormModal = ({ cita, onClose, onSaved, onDelete }) => {
           {error && <p className="text-sm font-medium text-error">{error}</p>}
         </div>
 
-        <div className="space-y-1 border-t border-outline-variant px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+        <div className="space-y-1 border-t border-outline-variant/70 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
           <button
             type="submit"
             disabled={guardando || cargandoDatos}
-            className="h-12 w-full rounded-xl bg-primary text-base font-semibold text-on-primary active:bg-[#663a40] disabled:opacity-50"
+            className="btn-rose h-12 w-full rounded-full text-base font-semibold transition-transform active:scale-[0.98] disabled:opacity-50"
           >
             {guardando ? 'Guardando...' : 'Guardar cita'}
           </button>

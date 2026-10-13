@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { fadeUp } from '../../animations/variants'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import { despertarServidor } from '../../lib/api'
-import { INPUT } from '../../components/agenda/estilos'
+import { INPUT, BOTON_PRIMARIO } from '../../components/agenda/estilos'
 
 const AgendaLogin = () => {
   const [username, setUsername] = useState('')
@@ -31,7 +31,8 @@ const AgendaLogin = () => {
   }
 
   return (
-    <div className="agenda-theme flex min-h-screen w-full items-center justify-center bg-background p-4">
+    <div className="agenda-theme flex min-h-screen w-full items-center justify-center p-4">
+      <div aria-hidden className="agenda-ambient" />
       <motion.div
         variants={fadeUp}
         initial="hidden"
@@ -40,19 +41,25 @@ const AgendaLogin = () => {
       >
         <form
           onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-4 rounded-3xl border border-outline-variant bg-white p-6 sm:p-8 shadow-xl"
+          className="glass glass-strong flex w-full flex-col gap-4 rounded-[2rem] p-6 sm:p-8"
         >
           {despertando && (
-            <p className="rounded-xl bg-surface-container-low px-3 py-2 text-center text-sm text-secondary">
-              Despertando el servidor, esto puede tardar unos segundos...
+            <p className="flex items-center justify-center gap-2 rounded-full bg-white/60 px-3 py-2 text-center text-xs text-secondary">
+              <span className="size-1.5 animate-pulse rounded-full bg-gold" />
+              Despertando el servidor, puede tardar unos segundos…
             </p>
           )}
 
-          <div className="text-center">
-            <h1 className="font-headline-md text-3xl text-primary">Maria's</h1>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-secondary">
-              Agenda
-            </p>
+          <div className="mb-2 text-center">
+            <img src="/logo-marias.png" alt="Maria's Beauty Salon" width="640" height="206" className="mx-auto h-14 w-auto" />
+            <div className="mx-auto mt-4 flex max-w-[12rem] items-center gap-2">
+              <div className="h-px flex-1 gold-rule" />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-ink">Agenda</p>
+              <div className="h-px flex-1 gold-rule" />
+            </div>
+            <h1 className="mt-4 font-['Bodoni_Moda'] text-3xl text-on-background">
+              Bienvenida <span className="italic text-primary">de nuevo.</span>
+            </h1>
           </div>
 
           <input
@@ -79,7 +86,7 @@ const AgendaLogin = () => {
           <button
             type="submit"
             disabled={loading || despertando}
-            className="h-12 rounded-xl bg-primary font-semibold text-on-primary active:bg-[#663a40] disabled:opacity-50 cursor-pointer"
+            className={`${BOTON_PRIMARIO} mt-1 cursor-pointer`}
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>

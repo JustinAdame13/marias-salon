@@ -160,40 +160,42 @@
   }
 }
 
+/* ============================================================
+   AGENDA — mismo lenguaje visual que la landing (rosa + dorado,
+   Bodoni + Hanken, liquid glass). Antes tenía su propia paleta y
+   fuentes (Playfair / Plus Jakarta); ahora redefinimos las MISMAS
+   variables que .landing, así todas las utilidades (bg-primary,
+   text-secondary...) cambian solas sin tocar cada componente.
+============================================================ */
 .agenda-theme {
-  --color-background: #faf7f5;
-  --color-surface: #faf7f5;
-  --color-primary: #7d484e;
+  --color-primary: #9c5560;
   --color-on-primary: #ffffff;
-  --color-primary-container: #eed9d7;
-  --color-on-primary-container: #623137;
-  --color-secondary: #786466;
-  --color-secondary-container: #f5eae8;
-  --color-on-secondary-container: #7d484e;
-  --color-tertiary: #c99a96;
-  --color-tertiary-container: #eed9d7;
-  --color-on-tertiary-container: #623137;
-  --color-on-surface: #301b20;
-  --color-on-surface-variant: #786466;
-  --color-on-background: #301b20;
-  --color-outline-variant: #eadfd9;
+  --color-primary-container: #f3dfe0;
+  --color-on-primary-container: #6e3a42;
+  --color-secondary: #6b5a5a;
+  --color-secondary-container: #f1e6e3;
+  --color-on-secondary-container: #6e3a42;
+  --color-tertiary: #c98a91;
+  --color-tertiary-container: #f3dfe0;
+  --color-on-tertiary-container: #6e3a42;
+  --color-on-background: #3d2f30;
+  --color-on-surface: #3d2f30;
+  --color-on-surface-variant: #6b5a5a;
+  --color-background: #fbf4ef;
+  --color-surface: #fbf4ef;
+  --color-outline-variant: #e8d6d2;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f8f2ef;
-  --color-surface-container: #f3ebe8;
-  --color-surface-container-high: #ece3df;
-  --color-surface-container-highest: #e5dbd7;
+  --color-surface-container-low: #fbf1ee;
+  --color-surface-container: #f5e9e6;
+  --color-surface-container-high: #efe1dd;
+  --color-surface-container-highest: #e8d8d4;
 
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--color-background);
   color: var(--color-on-background);
-}
-
-.agenda-theme .font-headline-md,
-.agenda-theme .font-headline-lg {
-  font-family: 'Playfair Display', serif;
-}
-
-.agenda-theme :is(.font-body-md, .font-body-lg, .font-label-md, .font-label-sm) {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
+  /* Igual que en .landing: el fondo ambiental (z-index:-1) queda
+     encima del color de fondo pero debajo del contenido */
+  isolation: isolate;
 }
 
 @keyframes sheet-up {
@@ -242,7 +244,8 @@ body:has(.landing) {
 /* Fondo ambiental: manchas suaves de color fijas detrás de todo.
    Son radial-gradients (baratos) en lugar de filter: blur (caro en móviles).
    El vidrio necesita algo detrás que "refractar", si no se ve plano. */
-.landing-ambient {
+.landing-ambient,
+.agenda-ambient {
   position: fixed;
   inset: 0;
   z-index: -1;
@@ -286,6 +289,19 @@ body:has(.landing) {
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.35),
     0 10px 24px -10px rgb(156 85 96 / 0.65);
+}
+
+/* Tarjeta "vidrio ligero" para listas largas (citas, clientas...).
+   Se ve como .glass sobre el fondo ambiental, pero SIN backdrop-filter:
+   el blur se recalcula en cada frame de scroll, y 30 tarjetas con blur
+   hacen que un celular modesto se trabe. Aquí solo hay degradado + borde. */
+.card-soft {
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.82), rgb(255 255 255 / 0.58));
+  border: 1px solid rgb(255 255 255 / 0.85);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    0 10px 28px -18px rgb(110 58 66 / 0.35);
 }
 
 /* Línea fina dorada, eco de la línea bajo "MARIA'S" */

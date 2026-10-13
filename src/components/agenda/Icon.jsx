@@ -52,6 +52,7 @@ const ICONOS = {
   chevronLeft: <path d="M15 6l-6 6 6 6" />,
   chevronRight: <path d="M9 6l6 6-6 6" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
+  chart: <path d="M4 20h16M7 16v-5M12 16V6M17 16v-8" />,
 }
 
 const Icon = ({ name, className = 'h-6 w-6' }) => (

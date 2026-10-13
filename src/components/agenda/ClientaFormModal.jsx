@@ -79,7 +79,7 @@ const ClientaFormModal = ({ clienta, onClose, onSaved, onDelete }) => {
       </Campo>
 
       <Campo label="Teléfono">
-        <div className="flex h-12 items-stretch overflow-hidden rounded-xl border border-outline-variant bg-white focus-within:border-primary focus-within:ring-4 focus-within:ring-primary-container/60">
+        <div className="flex h-12 items-stretch overflow-hidden rounded-2xl border border-outline-variant bg-white/80 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary-container/60">
           <span className="flex select-none items-center bg-surface-container px-3 text-secondary">
             +{PREFIJO_TELEFONO}
           </span>

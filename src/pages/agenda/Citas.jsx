@@ -8,6 +8,7 @@ import { useAgendaApi } from '../../hooks/useAgendaApi'
 import CitaFormModal from '../../components/agenda/CitaFormModal'
 import ConfirmDialog from '../../components/agenda/ConfirmDialog'
 import Icon from '../../components/agenda/Icon'
+import { FAB, chipFiltro } from '../../components/agenda/estilos'
 
 const HORA_APERTURA = 9
 const HORA_CIERRE = 20
@@ -15,9 +16,9 @@ const HUECO_MINIMO = 60
 const FMT_INPUT = "yyyy-MM-dd'T'HH:mm"
 
 const ESTADOS = {
-  CONFIRMADA: { label: 'Confirmada', chip: 'bg-[#f5eae8] text-[#7d484e]', acento: 'bg-[#7d484e]' },
-  COMPLETADA: { label: 'Completada', chip: 'bg-[#e3ebdc] text-[#4d5a34]', acento: 'bg-[#c99a96]' },
-  CANCELADA: { label: 'Cancelada', chip: 'bg-[#efe6df] text-[#8c6c70]', acento: 'bg-[#eed9d7]' },
+  CONFIRMADA: { label: 'Confirmada', chip: 'bg-primary-container text-on-primary-container', acento: 'bg-primary' },
+  COMPLETADA: { label: 'Completada', chip: 'bg-[#e6eddf] text-[#4d5a34]', acento: 'bg-gold' },
+  CANCELADA: { label: 'Cancelada', chip: 'bg-surface-container-high text-on-surface-variant', acento: 'bg-outline-variant' },
 }
 
 const construirLinea = (dia, lista, conHuecos) => {
@@ -47,17 +48,17 @@ const construirLinea = (dia, lista, conHuecos) => {
 }
 
 const BOTON_REDONDO =
-  'grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-container text-secondary active:bg-surface-container-high'
+  'grid h-11 w-11 shrink-0 place-items-center rounded-full card-soft text-primary active:scale-95 transition-transform'
 
 const HuecoRow = ({ inicio, fin, onClick }) => (
   <div className="grid grid-cols-[3rem_1fr] items-center gap-3 sm:grid-cols-[3.25rem_1fr]">
     <p className="text-right text-sm font-bold text-secondary">{format(inicio, 'HH:mm')}</p>
     <button
       onClick={onClick}
-      className="flex items-center justify-between rounded-2xl bg-surface-container px-3 py-2 sm:px-4 sm:py-3 text-left text-secondary"
+      className="flex items-center justify-between rounded-3xl border border-dashed border-primary/25 bg-white/35 px-3 py-2 sm:px-4 sm:py-3 text-left text-secondary transition-colors hover:bg-white/60"
     >
       <span className="text-xs sm:text-sm">Disponible hasta las {format(fin, 'HH:mm')}</span>
-      <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-full bg-surface-container-high">
+      <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-full bg-primary-container text-primary">
         <Icon name="plus" className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </span>
     </button>
@@ -84,7 +85,7 @@ const CitaCard = ({ cita, clienta, empleada, servicios, onClick }) => {
         tabIndex={0}
         onClick={onClick}
         onKeyDown={(e) => e.key === 'Enter' && onClick()}
-        className={`relative cursor-pointer overflow-hidden rounded-2xl border border-outline-variant bg-white p-3 sm:p-4 pl-4 sm:pl-5 shadow-[0_2px_10px_rgba(125,72,78,0.04)] ${
+        className={`card-soft relative cursor-pointer overflow-hidden rounded-3xl p-3 sm:p-4 pl-4 sm:pl-5 transition-transform active:scale-[0.99] ${
           cita.estado === 'CANCELADA' ? 'opacity-60' : ''
         }`}
       >
@@ -101,7 +102,7 @@ const CitaCard = ({ cita, clienta, empleada, servicios, onClick }) => {
 
         <p className="mt-1 text-xs sm:text-sm text-secondary">{servicios || 'Sin servicios'}</p>
 
-        <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-surface-container-low p-2">
+        <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-2 rounded-2xl bg-surface-container-low/70 p-2">
           <span className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full bg-primary-container text-[11px] sm:text-xs font-bold text-primary">
             {(empleada?.nombre ?? '?').charAt(0).toUpperCase()}
           </span>
@@ -116,7 +117,7 @@ const CitaCard = ({ cita, clienta, empleada, servicios, onClick }) => {
                 href={`tel:+${telefono}`}
                 onClick={detener}
                 aria-label="Llamar"
-                className="grid h-9 w-9 sm:h-11 sm:w-11 place-items-center rounded-full bg-surface-container text-secondary"
+                className="grid h-9 w-9 sm:h-11 sm:w-11 place-items-center rounded-full bg-white/80 text-secondary"
               >
                 <Icon name="phone" className="h-4 w-4 sm:h-5 sm:w-5" />
               </a>
@@ -267,7 +268,7 @@ const Citas = () => {
         </button>
         <button
           onClick={() => setDia(startOfDay(new Date()))}
-          className="h-11 rounded-full bg-primary-container px-4 text-xs font-bold tracking-wider text-primary"
+          className="card-soft h-11 rounded-full px-4 text-xs font-bold tracking-wider text-gold-ink"
         >
           HOY
         </button>
@@ -284,8 +285,8 @@ const Citas = () => {
               onClick={() => setDia(startOfDay(d))}
               className={`flex min-h-[64px] sm:min-h-[76px] flex-col items-center justify-center gap-1 rounded-2xl border transition-colors ${
                 activo
-                  ? 'border-primary bg-primary text-white shadow-[0_6px_20px_rgba(125,72,78,0.25)]'
-                  : `bg-white text-on-surface ${isToday(d) ? 'border-[#c99a96]' : 'border-outline-variant'}`
+                  ? 'btn-rose border-transparent'
+                  : `card-soft text-on-surface ${isToday(d) ? '!border-gold' : ''}`
               }`}
             >
               <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider opacity-80">
@@ -305,14 +306,12 @@ const Citas = () => {
       </div>
 
       {/* Filtros */}
-      <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      <div className="no-scrollbar -mx-4 mb-2 flex gap-2 overflow-x-auto px-4 pb-4 pt-1">
         {chips.map((c) => (
           <button
             key={c.value}
             onClick={() => setFiltro(c.value)}
-            className={`h-10 shrink-0 rounded-full px-4 text-sm font-semibold ${
-              filtro === c.value ? 'bg-primary text-white' : 'bg-primary-container text-primary'
-            }`}
+            className={chipFiltro(filtro === c.value)}
           >
             {c.label}
           </button>
@@ -324,7 +323,7 @@ const Citas = () => {
       </p>
 
       {error && (
-        <div className="mb-3 rounded-xl bg-error-container px-4 py-3 text-sm text-on-error-container">{error}</div>
+        <div className="mb-3 rounded-2xl bg-error-container px-4 py-3 text-sm text-on-error-container">{error}</div>
       )}
 
       {/* Línea del día */}
@@ -333,7 +332,7 @@ const Citas = () => {
       ) : linea.length === 0 ? (
         <div className="py-10 text-center">
           <p className="mb-3 text-secondary">No hay citas este día.</p>
-          <button onClick={() => abrirCrear()} className="h-11 rounded-full bg-primary-container px-5 text-sm font-bold text-primary">
+          <button onClick={() => abrirCrear()} className="btn-rose h-11 rounded-full px-5 text-sm font-semibold">
             Agendar una cita
           </button>
         </div>
@@ -359,7 +358,7 @@ const Citas = () => {
       {/* Botón flotante */}
       <button
         onClick={() => abrirCrear()}
-        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-primary px-6 font-semibold text-on-primary shadow-[0_6px_20px_rgba(125,72,78,0.35)] active:bg-[#663a40] md:bottom-8 md:right-8"
+        className={FAB}
       >
         <Icon name="plus" className="h-5 w-5" />
         Nueva cita

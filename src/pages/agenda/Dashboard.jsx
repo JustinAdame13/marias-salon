@@ -5,7 +5,8 @@ import { es } from 'date-fns/locale'
 import { useAgendaApi } from '../../hooks/useAgendaApi'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import { CARD } from '../../components/agenda/estilos'
-import { Aviso, Chip, ErrorBanner } from '../../components/agenda/ui'
+import { Aviso, Chip, ErrorBanner, Eyebrow } from '../../components/agenda/ui'
+import Icon from '../../components/agenda/Icon'
 
 const ESTADOS = {
   CONFIRMADA: { label: 'Confirmada', tono: 'primary' },
@@ -13,10 +14,11 @@ const ESTADOS = {
   CANCELADA: { label: 'Cancelada', tono: 'sand' },
 }
 
+// Mismo estilo que las cifras del Hero: número en Bodoni, etiqueta pequeña
 const Stat = ({ valor, etiqueta, color = 'text-primary' }) => (
   <div className={CARD}>
-    <p className={`text-3xl font-bold ${color}`}>{valor}</p>
-    <p className="mt-1 text-xs text-secondary">{etiqueta}</p>
+    <p className={`font-['Bodoni_Moda'] text-4xl leading-none ${color}`}>{valor}</p>
+    <p className="mt-2 text-xs text-secondary">{etiqueta}</p>
   </div>
 )
 
@@ -75,14 +77,19 @@ const AgendaDashboard = () => {
   const activasHoy = citasHoy.filter((c) => c.estado !== 'CANCELADA').length
   const pendientes = mensajes?.filter((m) => m.estado === 'PROGRAMADO').length ?? 0
   const fallidos = mensajes?.filter((m) => m.estado === 'FALLIDO').length ?? 0
+  const puedeVerEstadisticas = ['ADMIN', 'JEFA'].includes(user?.rol)
 
   return (
     <div>
-      <div className="mb-5">
-        <h1 className="font-headline-md text-2xl text-primary md:text-3xl">Hola, {user?.username}</h1>
-        <p className="text-sm capitalize text-secondary">
-          {format(new Date(), "EEEE d 'de' MMMM yyyy", { locale: es })}
-        </p>
+      <div className="mb-6">
+        <Eyebrow>
+          {/* first-letter: solo la primera letra en mayúscula ("Martes 13 de octubre") */}
+          <span className="first-letter:uppercase">{format(new Date(), "EEEE d 'de' MMMM", { locale: es })}</span>
+        </Eyebrow>
+        <h1 className="mt-4 font-['Bodoni_Moda'] text-[2.4rem] leading-[1.05] text-on-background md:text-5xl">
+          Hola, <span className="italic text-primary">{user?.username}.</span>
+        </h1>
+        <div className="mt-4 w-20 gold-rule" />
       </div>
 
       {error && <ErrorBanner>{error}</ErrorBanner>}
@@ -104,9 +111,27 @@ const AgendaDashboard = () => {
             )}
           </div>
 
+          {puedeVerEstadisticas && (
+            <Link
+              to="/agenda/estadisticas"
+              className="glass flex items-center gap-4 rounded-3xl p-4 transition-transform active:scale-[0.99]"
+            >
+              <span className="btn-rose grid size-12 shrink-0 place-items-center rounded-full">
+                <Icon name="chart" className="h-6 w-6" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-['Bodoni_Moda'] text-lg leading-tight">Estadísticas</p>
+                <p className="text-xs text-secondary">Ingresos, servicios estrella y horarios con más citas</p>
+              </div>
+              <Icon name="chevronRight" className="h-5 w-5 shrink-0 text-primary" />
+            </Link>
+          )}
+
           <section>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-headline-md text-xl text-primary">Citas de hoy</h2>
+            <div className="mb-3 flex items-end justify-between">
+              <h2 className="font-['Bodoni_Moda'] text-2xl text-on-background">
+                Citas de <span className="italic text-primary">hoy</span>
+              </h2>
               <Link to="/agenda/citas" className="text-sm font-semibold text-primary">
                 Ver agenda →
               </Link>
@@ -125,7 +150,7 @@ const AgendaDashboard = () => {
                       className={`${CARD} flex items-center gap-4 ${cita.estado === 'CANCELADA' ? 'opacity-60' : ''}`}
                     >
                       <div className="text-center leading-tight">
-                        <p className="text-base font-bold">{format(new Date(cita.inicio), 'HH:mm')}</p>
+                        <p className="font-['Bodoni_Moda'] text-lg">{format(new Date(cita.inicio), 'HH:mm')}</p>
                         <p className="text-xs text-secondary">{format(new Date(cita.fin), 'HH:mm')}</p>
                       </div>
                       <div className="min-w-0 flex-1">

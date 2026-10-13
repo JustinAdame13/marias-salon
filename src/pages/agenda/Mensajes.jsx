@@ -5,11 +5,11 @@ import { useAgendaApi } from '../../hooks/useAgendaApi'
 import { useAgendaAuth } from '../../context/AgendaAuthContext'
 import ConfirmDialog from '../../components/agenda/ConfirmDialog'
 import { Aviso, Chip, ErrorBanner, Titulo } from '../../components/agenda/ui'
-import { CARD } from '../../components/agenda/estilos'
+import { CARD, chipFiltro } from '../../components/agenda/estilos'
 
 const ESTADOS = {
-  PROGRAMADO: { label: 'Programado', tono: 'primary', acento: 'bg-[#7d484e]' },
-  ENVIADO: { label: 'Enviado', tono: 'sage', acento: 'bg-[#c99a96]' },
+  PROGRAMADO: { label: 'Programado', tono: 'primary', acento: 'bg-primary' },
+  ENVIADO: { label: 'Enviado', tono: 'sage', acento: 'bg-gold' },
   FALLIDO: { label: 'Fallido', tono: 'error', acento: 'bg-error' },
 }
 
@@ -125,7 +125,7 @@ const Mensajes = () => {
     <div>
       <Titulo>Mensajes</Titulo>
 
-      <div className="mb-4 grid grid-cols-2 rounded-full bg-primary-container p-1">
+      <div className="card-soft mb-4 grid grid-cols-2 rounded-full p-1">
         {[
           { value: 'proximos', label: 'Próximos' },
           { value: 'anteriores', label: 'Anteriores' },
@@ -134,7 +134,7 @@ const Mensajes = () => {
             key={v.value}
             onClick={() => setVista(v.value)}
             className={`h-10 rounded-full text-sm font-semibold transition-colors ${
-              vista === v.value ? 'bg-primary text-white' : 'text-primary'
+              vista === v.value ? 'btn-rose' : 'text-primary'
             }`}
           >
             {v.label}
@@ -142,14 +142,12 @@ const Mensajes = () => {
         ))}
       </div>
 
-      <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      <div className="no-scrollbar -mx-4 mb-2 flex gap-2 overflow-x-auto px-4 pb-4 pt-1">
         {chips.map((c) => (
           <button
             key={c.value}
             onClick={() => setFiltro(c.value)}
-            className={`h-10 shrink-0 rounded-full px-4 text-sm font-semibold ${
-              filtro === c.value ? 'bg-primary text-white' : 'bg-primary-container text-primary'
-            }`}
+            className={chipFiltro(filtro === c.value)}
           >
             {c.label}
           </button>

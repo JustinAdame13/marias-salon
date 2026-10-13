@@ -1,5 +1,5 @@
 import Icon from './Icon'
-import { INPUT } from './estilos'
+import { INPUT, FAB } from './estilos'
 
 export const Campo = ({ label, children }) => (
   <label className="flex flex-col gap-1.5">
@@ -10,7 +10,18 @@ export const Campo = ({ label, children }) => (
 
 // Título de página: en móvil ya lo muestra el encabezado, por eso solo aparece en escritorio
 export const Titulo = ({ children }) => (
-  <h1 className="mb-6 hidden font-headline-md text-3xl text-primary md:block shrink-0">{children}</h1>
+  <div className="mb-6 hidden shrink-0 md:block">
+    <h1 className="font-headline-md text-4xl text-on-background">{children}</h1>
+    <div className="mt-3 w-20 gold-rule" />
+  </div>
+)
+
+// Etiqueta pequeña tipo "píldora de vidrio" con punto dorado (como en el Hero)
+export const Eyebrow = ({ children }) => (
+  <span className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs tracking-wide text-on-surface-variant">
+    <span className="size-1.5 rounded-full bg-gold" />
+    {children}
+  </span>
 )
 
 export const SearchInput = ({ value, onChange, placeholder = 'Buscar...' }) => (
@@ -24,9 +35,9 @@ export const SearchInput = ({ value, onChange, placeholder = 'Buscar...' }) => (
 )
 
 const TONOS = {
-  primary: 'bg-[#f5eae8] text-[#7d484e]',
-  sage: 'bg-[#e3ebdc] text-[#4d5a34]',
-  sand: 'bg-[#efe6df] text-[#8c6c70]',
+  primary: 'bg-primary-container text-on-primary-container',
+  sage: 'bg-[#e6eddf] text-[#4d5a34]', // verde = "listo", se queda fijo a propósito
+  sand: 'bg-surface-container-high text-on-surface-variant',
   error: 'bg-error-container text-on-error-container',
 }
 
@@ -39,7 +50,7 @@ export const Chip = ({ tono = 'primary', children }) => (
 )
 
 export const Avatar = ({ nombre = '?' }) => (
-  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container font-bold text-primary">
+  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container font-['Bodoni_Moda'] text-lg text-primary ring-2 ring-white/80">
     {nombre.charAt(0).toUpperCase()}
   </span>
 )
@@ -49,13 +60,13 @@ export const Aviso = ({ children }) => (
 )
 
 export const ErrorBanner = ({ children }) => (
-  <div className="mb-4 rounded-xl bg-error-container px-4 py-3 text-sm text-on-error-container">{children}</div>
+  <div className="mb-4 rounded-2xl bg-error-container px-4 py-3 text-sm text-on-error-container">{children}</div>
 )
 
 export const Fab = ({ onClick, children }) => (
   <button
     onClick={onClick}
-    className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-primary px-6 font-semibold text-on-primary shadow-[0_6px_20px_rgba(125,72,78,0.35)] active:bg-[#663a40] md:bottom-8 md:right-8"
+    className={FAB}
   >
     <Icon name="plus" className="h-5 w-5" />
     {children}
