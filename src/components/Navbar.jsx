@@ -5,6 +5,7 @@ import { InstagramIcon, FacebookIcon } from './icons'
 
 const NAV_LINKS = [
   { id: 'services', label: 'Servicios' },
+  { id: 'products', label: 'Productos' },
   { id: 'about', label: 'Estilista' },
   { id: 'location', label: 'Ubicación' },
 ]

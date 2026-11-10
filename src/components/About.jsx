@@ -55,7 +55,11 @@ const About = () => {
               donde dominó corte femenino, peinado, colorimetría y técnicas de ondulación.
               Con el tiempo amplió su oficio hasta abarcar uñas, pedicura, tratamientos
               capilares, laminado de cejas, extensión de pestañas pelo a pelo y maquillaje
-              profesional.
+              profesional. Hoy trabaja con productos profesionales de{' '}
+              <a href="#products" className="font-semibold text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary">
+                Salerm Cosmetics
+              </a>
+              {' '}para cuidar el cabello de cada clienta.
             </p>
 
             <blockquote className="glass mt-6 rounded-3xl p-5 sm:p-6">
